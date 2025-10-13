@@ -1,6 +1,6 @@
 namespace WebshopService.Repositories;
 
-public class IOrderRepository
+public interface IOrderRepository
 {
     
 }

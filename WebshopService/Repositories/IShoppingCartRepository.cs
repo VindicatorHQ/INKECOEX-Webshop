@@ -1,6 +1,6 @@
 namespace WebshopService.Repositories;
 
-public class IShoppingCartRepository
+public interface IShoppingCartRepository
 {
     
 }

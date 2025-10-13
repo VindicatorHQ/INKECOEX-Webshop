@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebshopService.Data;
 using WebshopService.DTOs;
+using WebshopService.DTOs.Requests;
+using WebshopService.DTOs.Responses;
 
 namespace WebshopService.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class AuthController(UserManager<IdentityUser> userManager, IConfiguration config)
     : ControllerBase
 {

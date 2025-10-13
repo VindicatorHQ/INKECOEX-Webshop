@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using WebshopService.DTOs;
+using WebshopService.DTOs.Responses;
 
 namespace WebshopService.Data;
 
