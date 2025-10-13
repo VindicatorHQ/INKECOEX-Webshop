@@ -1,0 +1,24 @@
+﻿@using WebshopFrontend.Components.Layout
+@using Microsoft.AspNetCore.Components.Authorization
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(Program).Assembly">
+        
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <h1 class="text-danger">Toegang geweigerd</h1>
+                    <p>U bent niet gemachtigd om deze pagina te bekijken. Log in of neem contact op met de beheerder.</p>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+        
+        <NotFound>
+            <PageTitle>Niet gevonden</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, er is hier niets op dit adres.</p>
+            </LayoutView>
+        </NotFound>
+        
+    </Router>
+</CascadingAuthenticationState>
