@@ -29,6 +29,6 @@ public class AdminProductsController(IProductRepository productRepository) : Con
 
         var allProducts = await productRepository.GetAllAsync();
         
-        return CreatedAtAction(nameof(allProducts.Last().Name), new { id = newProduct.Id }, newProduct);
+        return CreatedAtAction(nameof(CreateProduct), new { id = newProduct.Id }, newProduct);
     }
 }
