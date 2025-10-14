@@ -5,7 +5,7 @@ using WebshopService.DTOs.Requests;
 using WebshopService.DTOs.Responses;
 using WebshopService.Exceptions;
 using WebshopService.Models;
-using WebshopService.Repositories;
+using WebshopService.Repositories.Interface;
 
 namespace WebshopService.Controllers;
 
@@ -14,29 +14,78 @@ namespace WebshopService.Controllers;
 [Authorize(Roles = Roles.Admin)]
 public class AdminProductsController(IProductRepository productRepository) : ControllerBase
 {
-    [HttpPost]
-    [ProducesResponseType(201)]
-    [ProducesResponseType(403)]
-    public async Task<IActionResult> CreateProduct([FromBody] ProductCreateRequest request)
+    [HttpGet("{id:int}")]
+    [ProducesResponseType(200, Type = typeof(ProductResponse))]
+    [ProducesResponseType(404, Type = typeof(Error))]
+    public async Task<IActionResult> GetProduct(int id)
     {
-        var newProduct = new Product 
-        { 
-            Name = request.Name, 
-            Description = request.Description, 
-            Price = request.Price, 
-            StockQuantity = request.StockQuantity 
+        Product product;
+        
+        try
+        {
+            product = await productRepository.GetByIdAsync(id);
+        }
+        catch (ProductNotFoundException exception)
+        {
+            return NotFound(new Error(exception.Message, "IWS404"));
+        }
+        
+        var response = new ProductResponse
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            StockQuantity = product.StockQuantity,
+            CategoryIds = product.ProductCategories.Select(pc => pc.Category.Id).ToList(),
+            CategoryNames = string.Join(", ", product.ProductCategories.Select(cp => cp.Category.Name))
         };
         
-        await productRepository.AddAsync(newProduct, request.CategoryIds);
+        return Ok(response);
+    }
+    
+    [HttpPost]
+    [ProducesResponseType(201, Type = typeof(ProductResponse))]
+    [ProducesResponseType(400, Type = typeof(Error))]
+    public async Task<IActionResult> CreateProduct([FromBody] ProductCreateRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+    
+        var productEntity = new Product
+        {
+            Name = request.Name,
+            Description = request.Description,
+            Price = request.Price,
+            StockQuantity = request.StockQuantity,
         
-        return CreatedAtAction(nameof(CreateProduct), new { id = newProduct.Id }, newProduct);
+            ProductCategories = request.CategoryIds
+                .Select(categoryId => new ProductCategory() { CategoryId = categoryId })
+                .ToList()
+        };
+    
+        var createdProduct = await productRepository.CreateAsync(productEntity);
+
+        var response = new ProductResponse
+        {
+            Id = createdProduct.Id,
+            Name = createdProduct.Name,
+            Description = createdProduct.Description,
+            Price = createdProduct.Price,
+            StockQuantity = createdProduct.StockQuantity,
+            CategoryNames = string.Join(", ", createdProduct.ProductCategories.Select(cp => cp.Category?.Name ?? "Onbekend"))
+        };
+
+        return CreatedAtAction(nameof(GetProduct), new { id = response.Id }, response);
     }
 
     [HttpPut("{id:int}")]
     [ProducesResponseType(204)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductUpdateRequest request)
+    [ProducesResponseType(400, Type = typeof(Error))]
+    [ProducesResponseType(404, Type = typeof(Error))]
+    public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductCreateRequest request)
     {
         if (id != request.Id)
         {
@@ -61,7 +110,7 @@ public class AdminProductsController(IProductRepository productRepository) : Con
 
     [HttpDelete("{id:int}")]
     [ProducesResponseType(204)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(404, Type = typeof(Error))]
     public async Task<IActionResult> DeleteProduct(int id)
     {
         try

@@ -1,6 +1,6 @@
 using WebshopFrontend.DTOs.Requests;
 
-namespace WebshopFrontend.Agents;
+namespace WebshopFrontend.Agents.Interface;
 
 public interface IAuthAgent
 {

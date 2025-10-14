@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebshopService.DTOs.Responses;
-using WebshopService.Repositories;
+using WebshopService.Exceptions;
+using WebshopService.Models;
+using WebshopService.Repositories.Interface;
 
 namespace WebshopService.Controllers;
 
@@ -15,30 +17,47 @@ public class ProductsController(IProductRepository productRepository) : Controll
     {
         var products = await productRepository.GetAllAsync();
         
-        var response = products.Select(p => new ProductResponse 
+        var response = products.Select(product => new ProductResponse 
         {
-            Id = p.Id,
-            Name = p.Name,
-            Price = p.Price,
-            StockQuantity = p.StockQuantity,
-            CategoryNames = string.Join(", ", p.ProductCategories.Select(pc => pc.Category.Name))
+            Id = product.Id,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            StockQuantity = product.StockQuantity,
+            CategoryIds = product.ProductCategories.Select(pc => pc.Category.Id).ToList(),
+            CategoryNames = string.Join(", ", product.ProductCategories.Select(cp => cp.Category.Name))
         });
         
         return Ok(response);
     }
     
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(200, Type = typeof(ProductResponse))]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(404, Type = typeof(Error))]
     public async Task<IActionResult> GetProduct(int id)
     {
-        var product = await productRepository.GetByIdAsync(id);
+        Product product;
         
-        if (product == null)
+        try
         {
-            return NotFound();
+            product = await productRepository.GetByIdAsync(id);
+        }
+        catch (ProductNotFoundException exception)
+        {
+            return NotFound(new Error(exception.Message, "IWS404"));
         }
         
-        return Ok(product); 
+        var response = new ProductResponse
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            StockQuantity = product.StockQuantity,
+            CategoryIds = product.ProductCategories.Select(pc => pc.Category.Id).ToList(),
+            CategoryNames = string.Join(", ", product.ProductCategories.Select(cp => cp.Category.Name))
+        };
+        
+        return Ok(response);
     }
 }

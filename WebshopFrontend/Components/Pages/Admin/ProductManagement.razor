@@ -2,15 +2,19 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager NavigationManager
 
 <PageTitle>Product Beheer</PageTitle>
 
-<h1>Product Beheer</h1>
-<hr />
-
 <AuthorizeView Roles="Admin" Context="authContext">
     <Authorized>
-        <p>Welkom, beheerder @authContext.User.Identity?.Name. U hebt volledige toegang tot dit paneel.</p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Product Beheer</h1>
+    
+            <button class="btn btn-success" id="create-product" @onclick="NavigateToProductCreatePage">Product Aanmaken</button>
+        </div>
+
+        <hr />
         
         @if (products.Any())
         {
@@ -31,6 +35,8 @@
                         <td>@p.Name</td>
                         <td>@p.StockQuantity</td>
                         <td>
+                            <button class="btn btn-sm btn-warning me-2" id="edit-product" @onclick="() => NavigateToProductEditPage(p.Id)">Bewerken</button>
+                            
                             <button class="btn btn-sm btn-danger" @onclick="() => DeleteProduct(p.Id)">Verwijder</button>
                         </td>
                     </tr>
@@ -42,7 +48,7 @@
         {
             <div class="alert alert-info">Geen producten beschikbaar om te beheren.</div>
         }
-        
+
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {
             <div class="alert alert-danger mt-3">@ErrorMessage</div>

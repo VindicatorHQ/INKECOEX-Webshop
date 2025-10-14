@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using WebshopFrontend.Agents;
+using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Requests;
 
 namespace WebshopFrontend.Components.Pages;
@@ -17,7 +18,7 @@ public partial class Login(IAuthAgent authAgent) : ComponentBase
 
         if (success)
         {
-            NavManager.NavigateTo("/", true);
+            NavigationManager.NavigateTo("/", true);
         }
         else
         {

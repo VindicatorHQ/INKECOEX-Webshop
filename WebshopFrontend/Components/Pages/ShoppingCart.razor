@@ -1,0 +1,67 @@
+@page "/shoppingcart"
+@inject NavigationManager NavigationManager
+
+<PageTitle>Mijn Winkelmandje</PageTitle>
+
+<h2>Mijn Winkelmandje 🛒</h2>
+<hr/>
+
+@if (isLoading)
+{
+    <p><em>Laden van je Winkelmandje...</em></p>
+}
+else if (cartService.CurrentCart.Items.Count == 0)
+{
+    <p class="alert alert-info">Je **Winkelmandje** is leeg. Ga naar de <a href="/products">productenpagina</a> om te beginnen met winkelen.</p>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th class="text-end">Prijs</th>
+                <th class="text-center">Aantal</th>
+                <th class="text-end">Subtotaal</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in cartService.CurrentCart.Items)
+            {
+                <tr>
+                    <td>
+                        <a href="/products/@item.ProductId">@item.ProductName</a>
+                    </td>
+                    <td class="text-end">@item.Price.ToString("C2")</td>
+                    <td class="text-center">
+                        <strong>@item.Quantity</strong>
+                    </td>
+                    <td class="text-end">@item.Subtotal.ToString("C2")</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" title="Verwijderen" @onclick="() => RemoveItem(item.ProductId)">
+                            <span class="oi oi-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="table-dark">
+                <td colspan="3" class="text-end fw-bold">Totaal:</td>
+                <td colspan="2" class="fw-bold text-end">@cartService.CurrentCart.TotalPrice.ToString("C2")</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="d-flex justify-content-end mt-4">
+        <button class="btn btn-success btn-lg" @onclick="StartCheckout">
+            Afrekenen (@cartService.CurrentCart.TotalPrice.ToString("C2"))
+        </button>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger mt-3">@ErrorMessage</div>
+    }
+}

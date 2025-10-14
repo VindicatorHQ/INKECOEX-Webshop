@@ -1,0 +1,52 @@
+using Microsoft.AspNetCore.Components;
+using WebshopFrontend.Agents.Interface;
+using WebshopFrontend.DTOs.Requests;
+
+namespace WebshopFrontend.Components.Pages.Admin;
+
+public partial class ProductEdit(IProductAgent productAgent) : ComponentBase
+{
+    [Parameter] public int ProductId { get; set; }
+
+    private ProductCreateRequest? productRequest;
+    private bool isLoading = true;
+    private bool ShowError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var productResponse = await productAgent.GetByIdAsync(ProductId);
+        
+        if (productResponse != null)
+        {
+            productRequest = new ProductCreateRequest
+            {
+                Id = ProductId,
+                Name = productResponse.Name,
+                Description = productResponse.Description,
+                Price = productResponse.Price,
+                StockQuantity = productResponse.StockQuantity,
+                
+                CategoryIds = productResponse.CategoryIds
+            };
+        }
+        isLoading = false;
+    }
+
+    private async Task HandleUpdate()
+    {
+        ShowError = false;
+        
+        if (productRequest == null) return;
+
+        var success = await productAgent.UpdateAsync(ProductId, productRequest);
+
+        if (success)
+        {
+            NavigationManager.NavigateTo("/admin/products");
+        }
+        else
+        {
+            ShowError = true;
+        }
+    }
+}

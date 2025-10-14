@@ -3,8 +3,9 @@ using WebshopService.Data;
 using WebshopService.DTOs.Requests;
 using WebshopService.Exceptions;
 using WebshopService.Models;
+using WebshopService.Repositories.Interface;
 
-namespace WebshopService.Repositories;
+namespace WebshopService.Repositories.Implementation;
 
 public class ProductRepository(WebshopDbContext context) : IProductRepository
 {
@@ -28,21 +29,23 @@ public class ProductRepository(WebshopDbContext context) : IProductRepository
         return Task.FromResult(existingProduct);
     }
 
-    public Task AddAsync(Product product, IEnumerable<int> categoryIds)
+    public async Task<Product> CreateAsync(Product product)
     {
-        throw new NotImplementedException();
+        context.Products.Add(product);
+        
+        await context.SaveChangesAsync();
+        
+        return product;
     }
 
-    public Task UpdateAsync(Product existingProduct, ProductUpdateRequest product)
+    public async Task UpdateAsync(Product existingProduct, ProductCreateRequest product)
     {
         context.Entry(existingProduct).CurrentValues.SetValues(product);
         
-        context.SaveChanges();
-
-        return Task.CompletedTask;
+        await context.SaveChangesAsync();
     }
 
-    public Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
         var product = context.Products.FirstOrDefault(p => p.Id == id);
 
@@ -53,8 +56,6 @@ public class ProductRepository(WebshopDbContext context) : IProductRepository
         
         context.Products.Remove(product);
         
-        context.SaveChanges();
-        
-        return Task.CompletedTask;
+        await context.SaveChangesAsync();
     }
 }

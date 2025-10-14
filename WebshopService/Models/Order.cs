@@ -8,8 +8,9 @@ public class Order
     public string UserId { get; set; }
     public DateTime OrderDate { get; set; }
     public decimal TotalAmount { get; set; }
-    public string Status { get; set; }
+    public string Status { get; set; } = "New";
 
     public IdentityUser User { get; set; }
-    public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+    public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
+    public ShippingAddress? ShippingAddress { get; set; }
 }

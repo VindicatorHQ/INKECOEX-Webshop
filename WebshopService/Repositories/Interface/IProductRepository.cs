@@ -1,13 +1,13 @@
 using WebshopService.DTOs.Requests;
 using WebshopService.Models;
 
-namespace WebshopService.Repositories;
+namespace WebshopService.Repositories.Interface;
 
 public interface IProductRepository
 {
     Task<IEnumerable<Product>> GetAllAsync();
     Task<Product> GetByIdAsync(int id);
-    Task AddAsync(Product product, IEnumerable<int> categoryIds);
-    Task UpdateAsync(Product product, ProductUpdateRequest request);
+    Task<Product> CreateAsync(Product product);
+    Task UpdateAsync(Product product, ProductCreateRequest request);
     Task DeleteAsync(int id);
 }

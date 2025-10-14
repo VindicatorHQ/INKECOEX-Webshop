@@ -1,10 +1,11 @@
 using Blazored.SessionStorage;
 using Flurl;
 using Flurl.Http;
+using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Requests;
 using WebshopFrontend.DTOs.Responses;
 
-namespace WebshopFrontend.Agents;
+namespace WebshopFrontend.Agents.Implementation;
 
 public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageService sessionStorage) : IProductAgent
 {
@@ -19,7 +20,7 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
             .WithOAuthBearerToken(token);
     }
     
-    public async Task<List<ProductResponse>> GetProductsAsync()
+    public async Task<List<ProductResponse>> GetAsync()
     {
         try
         {
@@ -37,7 +38,7 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
         }
     }
     
-    public async Task<ProductResponse?> GetProductByIdAsync(int id)
+    public async Task<ProductResponse?> GetByIdAsync(int id)
     {
         try
         {
@@ -55,7 +56,7 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
         }
     }
     
-    public async Task<bool> CreateProductAsync(ProductCreateRequest request)
+    public async Task<bool> CreateAsync(ProductCreateRequest request)
     {
         try
         {
@@ -70,6 +71,7 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
         catch (FlurlHttpException ex) when (ex.Call.Response.StatusCode == 403)
         {
             Console.WriteLine("Autorisatiefout: Alleen beheerders mogen producten toevoegen.");
+            Console.WriteLine($"Status 403: {ex.Message}");
             
             return false;
         }
@@ -81,7 +83,7 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
         }
     }
 
-    public async Task<bool> UpdateProductAsync(int id, ProductUpdateRequest request)
+    public async Task<bool> UpdateAsync(int id, ProductCreateRequest request)
     {
         try
         {
@@ -93,15 +95,19 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
         }
         catch (FlurlHttpException ex) when (ex.Call.Response.StatusCode == 404)
         {
+            Console.WriteLine($"Status 404: {ex.Message}");
+            
             return false;
         }
-        catch (FlurlHttpException)
+        catch (FlurlHttpException ex)
         {
+            Console.WriteLine($"Flurl Error updating product with id '{id}': {ex.Message}");
+            
             return false;
         }
     }
 
-    public async Task<bool> DeleteProductAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
         try
         {
@@ -113,10 +119,14 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
         }
         catch (FlurlHttpException ex) when (ex.Call.Response.StatusCode == 404)
         {
+            Console.WriteLine($"Status 404: {ex.Message}");
+            
             return false;
         }
-        catch (FlurlHttpException)
+        catch (FlurlHttpException ex)
         {
+            Console.WriteLine($"Flurl Error deleting product with id '{id}': {ex.Message}");
+            
             return false;
         }
     }

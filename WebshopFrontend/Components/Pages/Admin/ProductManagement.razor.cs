@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using WebshopFrontend.Agents;
+using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Responses;
 
 namespace WebshopFrontend.Components.Pages.Admin;
@@ -12,23 +12,34 @@ public partial class ProductManagement(IProductAgent productAgent) : ComponentBa
 
     protected override async Task OnInitializedAsync()
     {
-        products = await productAgent.GetProductsAsync(); 
+        products = await productAgent.GetAsync(); 
         
         isLoading = false;
     }
 
     private async Task DeleteProduct(int id)
     {
-        var success = await productAgent.DeleteProductAsync(id);
+        var success = await productAgent.DeleteAsync(id);
         
         if (success)
         {
             products.RemoveAll(p => p.Id == id);
+            
             ErrorMessage = string.Empty;
         }
         else
         {
             ErrorMessage = "Something went wrong while deleting the product";
         }
+    }
+
+    private void NavigateToProductCreatePage()
+    {
+        NavigationManager.NavigateTo("/admin/products/create");
+    }
+
+    private void NavigateToProductEditPage(int id)
+    {
+        NavigationManager.NavigateTo($"/admin/products/edit/{id}");
     }
 }

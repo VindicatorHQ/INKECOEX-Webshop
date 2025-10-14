@@ -1,0 +1,14 @@
+@page "/admin/products/create"
+@using Microsoft.AspNetCore.Authorization
+@using WebshopFrontend.Components.Admin
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Product Toevoegen</PageTitle>
+
+<ProductForm ProductRequest="ProductRequest" OnValidSubmit="HandleCreate" />
+
+@if (ShowError)
+{
+    <div class="alert alert-danger mt-3">Er is een fout opgetreden bij het aanmaken van het product.</div>
+}

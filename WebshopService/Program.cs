@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using Polly;
 using WebshopService.Data;
 using WebshopService.Repositories;
+using WebshopService.Repositories.Implementation;
+using WebshopService.Repositories.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<WebshopDbContext>(o=> o.UseNpgsql(connectionString));
 
+builder.Services.AddTransient<ICategoryRepository, CategoryRepository>();
 builder.Services.AddTransient<IOrderRepository, OrderRepository>();
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<IShoppingCartRepository, ShoppingCartRepository>();

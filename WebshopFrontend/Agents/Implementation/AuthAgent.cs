@@ -1,22 +1,25 @@
+using Blazored.SessionStorage;
 using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Components.Authorization;
+using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Requests;
 using WebshopFrontend.DTOs.Responses;
 using WebshopFrontend.Providers;
 
-namespace WebshopFrontend.Agents;
+namespace WebshopFrontend.Agents.Implementation;
 
-public class AuthAgent(AgentUrl<AuthAgent> agentUrl, AuthenticationStateProvider authProvider)
+public class AuthAgent(AgentUrl<AuthAgent> agentUrl, AuthenticationStateProvider authProvider, ISessionStorageService sessionStorage)
     : IAuthAgent
 {
+    private readonly string _baseUrl = agentUrl.Url;
     private readonly JwtAuthenticationStateProvider _jwtProvider = (JwtAuthenticationStateProvider)authProvider;
 
     public async Task<bool> LoginAsync(LoginRequest model)
     {
         try
         {
-            var authResponse = await agentUrl.Url
+            var authResponse = await _baseUrl
                 .AppendPathSegment("api/auth/login")
                 .PostJsonAsync(model)
                 .ReceiveJson<AuthResponse>();

@@ -1,0 +1,40 @@
+using Microsoft.AspNetCore.Components;
+using WebshopFrontend.Agents.Interface;
+using WebshopFrontend.DTOs.Responses;
+
+namespace WebshopFrontend.Components.Pages;
+
+public partial class ProductDetail(IProductAgent productAgent, IShoppingCartAgent shoppingCartAgent) : ComponentBase
+{
+    [Parameter] public int ProductId { get; set; }
+
+    private ProductResponse? product;
+    private bool showSuccess;
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await productAgent.GetByIdAsync(ProductId);
+        
+        if (product == null)
+        {
+            // Eventueel: toon foutmelding of navigeer naar 404
+        }
+    }
+    
+    private async Task AddToCart()
+    {
+        var updatedCart = await shoppingCartAgent.AddToCartAsync(ProductId, 1);
+
+        if (updatedCart != null)
+        {
+            showSuccess = true;
+            // TODO: Later moeten we de ShoppingCart state updaten (zie volgende stap)
+
+            await Task.Delay(3000);
+            
+            showSuccess = false;
+            
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

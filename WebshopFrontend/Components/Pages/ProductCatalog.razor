@@ -1,4 +1,5 @@
 @page "/products"
+@inject NavigationManager NavigationManager
 
 <PageTitle>Product Catalogus</PageTitle>
 
@@ -22,9 +23,9 @@ else if (products.Any())
         <tbody>
         @foreach (var product in products)
         {
-            <tr>
+            <tr style="cursor: pointer" @onclick="@(e => NavigateToProductPage(product.Id))">
                 <td>@product.Name</td>
-                <td>@product.Price.ToString("C2")</td>
+                <td>€ @product.Price</td>
                 <td>@product.StockQuantity</td>
                 <td>@product.CategoryNames</td>
             </tr>

@@ -12,7 +12,7 @@ public class WebshopDbContext(DbContextOptions<WebshopDbContext> options) : Iden
     public DbSet<Category> Categories { get; set; }
     public DbSet<ProductCategory> ProductCategories { get; set; }
     public DbSet<Order> Orders { get; set; }
-    public DbSet<OrderDetail> OrderDetails { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<ShoppingCart> ShoppingCarts { get; set; }
     public DbSet<CartItem> CartItems { get; set; }
 
@@ -23,7 +23,7 @@ public class WebshopDbContext(DbContextOptions<WebshopDbContext> options) : Iden
         builder.ApplyConfiguration(new CartItemConfiguration());
         builder.ApplyConfiguration(new CategoryConfiguration());
         builder.ApplyConfiguration(new OrderConfiguration());
-        builder.ApplyConfiguration(new OrderDetailConfiguration());
+        builder.ApplyConfiguration(new OrderItemConfiguration());
         builder.ApplyConfiguration(new ProductCategoryConfiguration());
         builder.ApplyConfiguration(new ProductConfiguration());
         builder.ApplyConfiguration(new ShoppingCartConfiguration());

@@ -1,0 +1,47 @@
+@page "/products/{ProductId:int}"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Product Detail</PageTitle>
+
+@if (product == null)
+{
+    <p><em>Laden...</em></p>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1 class="card-title">@product.Name</h1>
+            <p class="card-text text-muted">@product.CategoryNames</p>
+            
+            <h2 class="text-primary">&euro; @product.Price</h2>
+
+            <p>@product.Description</p>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                @if (product.StockQuantity > 0)
+                {
+                    <p class="text-success fw-bold">Op voorraad (@product.StockQuantity stuks)</p>
+            
+                    <AuthorizeView>
+                        <Authorized>
+                            <button class="btn btn-primary" @onclick="AddToCart">Toevoegen aan ShoppingCart</button>
+                            
+                            @if (showSuccess)
+                            {
+                                <span class="text-success ms-2">Toegevoegd!</span>
+                            }
+                        </Authorized>
+                        <NotAuthorized>
+                            <a href="/login" class="btn btn-outline-secondary">Log in om te bestellen</a>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                }
+                else
+                {
+                    <p class="text-danger fw-bold">Niet op voorraad</p>
+                }
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,34 @@
+@page "/admin/products/edit/{ProductId:int}"
+@using Microsoft.AspNetCore.Authorization
+@using WebshopFrontend.Components.Admin
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Product Bewerken</PageTitle>
+
+<h1>Product Bewerken (@ProductId)</h1>
+<hr />
+
+@if (productRequest == null)
+{
+    @if (isLoading)
+    {
+        <p><em>Productgegevens laden...</em></p>
+    }
+    else
+    {
+        <div class="alert alert-danger">Product met ID @ProductId niet gevonden.</div>
+    }
+}
+else
+{
+    <ProductForm ProductRequest="productRequest" 
+                 OnValidSubmit="HandleUpdate" 
+                 Title="Product Aanpassen" 
+                 ButtonText="Opslaan" />
+
+    @if (ShowError)
+    {
+        <div class="alert alert-danger mt-3">Er is een fout opgetreden bij het opslaan van de wijzigingen.</div>
+    }
+}

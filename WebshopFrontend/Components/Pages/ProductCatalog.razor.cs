@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using WebshopFrontend.Agents;
+using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Responses;
 
 namespace WebshopFrontend.Components.Pages;
@@ -11,7 +11,12 @@ public partial class ProductCatalog(IProductAgent productAgent) : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        products = await productAgent.GetProductsAsync();
+        products = await productAgent.GetAsync();
         isLoading = false;
+    }
+
+    private void NavigateToProductPage(int id)
+    {
+        NavigationManager.NavigateTo($"/products/{id}");
     }
 }

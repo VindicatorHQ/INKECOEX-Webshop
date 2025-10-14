@@ -4,21 +4,21 @@ using WebshopService.Models;
 
 namespace WebshopService.EFMappings;
 
-public class OrderDetailConfiguration : IEntityTypeConfiguration<OrderDetail>
+public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
 {
-    public void Configure(EntityTypeBuilder<OrderDetail> builder)
+    public void Configure(EntityTypeBuilder<OrderItem> builder)
     {
         builder.HasKey(od => od.Id);
 
         builder.Property(od => od.Quantity)
             .IsRequired();
 
-        builder.Property(od => od.UnitPrice)
+        builder.Property(od => od.PriceAtOrder)
             .HasColumnType("numeric(18, 2)")
             .IsRequired();
 
         builder.HasOne(od => od.Order)
-            .WithMany(o => o.OrderDetails)
+            .WithMany(o => o.Items)
             .HasForeignKey(od => od.OrderId);
 
         builder.HasOne(od => od.Product)
