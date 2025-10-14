@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebshopService.Data;
+using WebshopService.DTOs.Requests;
+using WebshopService.Exceptions;
 using WebshopService.Models;
 
 namespace WebshopService.Repositories;
@@ -16,7 +18,14 @@ public class ProductRepository(WebshopDbContext context) : IProductRepository
 
     public Task<Product> GetByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        var existingProduct = context.Products.FirstOrDefault(p => p.Id == id);
+        
+        if (existingProduct == null)
+        {
+            throw new ProductNotFoundException($"Product with id '{id}' was not found.");
+        }
+        
+        return Task.FromResult(existingProduct);
     }
 
     public Task AddAsync(Product product, IEnumerable<int> categoryIds)
@@ -24,13 +33,28 @@ public class ProductRepository(WebshopDbContext context) : IProductRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateAsync(Product product)
+    public Task UpdateAsync(Product existingProduct, ProductUpdateRequest product)
     {
-        throw new NotImplementedException();
+        context.Entry(existingProduct).CurrentValues.SetValues(product);
+        
+        context.SaveChanges();
+
+        return Task.CompletedTask;
     }
 
     public Task DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        var product = context.Products.FirstOrDefault(p => p.Id == id);
+
+        if (product == null)
+        {
+            throw new ProductNotFoundException($"Product with id '{id}' was not found.");
+        }
+        
+        context.Products.Remove(product);
+        
+        context.SaveChanges();
+        
+        return Task.CompletedTask;
     }
 }

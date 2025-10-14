@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Components;
+using WebshopFrontend.Agents;
 using WebshopFrontend.Providers;
 
 namespace WebshopFrontend.Components.Layout;
 
-public partial class LoginDisplay : ComponentBase
+public partial class LoginDisplay(IAuthAgent authAgent) : ComponentBase
 {
     private async Task Logout()
     {
-        var jwtProvider = (JwtAuthenticationStateProvider)AuthProvider;
-        await jwtProvider.MarkUserLoggedOut();
+        await authAgent.LogoutAsync();
         
         NavManager.NavigateTo("/", forceLoad: true);
     }

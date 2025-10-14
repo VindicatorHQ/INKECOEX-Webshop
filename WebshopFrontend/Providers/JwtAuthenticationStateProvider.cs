@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using Blazored.SessionStorage;
@@ -9,16 +8,14 @@ namespace WebshopFrontend.Providers;
 public class JwtAuthenticationStateProvider: AuthenticationStateProvider
 {
     private readonly ISessionStorageService _sessionStorage;
-    private readonly HttpClient _httpClient;
     private readonly ClaimsPrincipal _anonymous = new(new ClaimsIdentity());
     private const string TokenKey = "authToken";
 
     private AuthenticationState _currentState;
 
-    public JwtAuthenticationStateProvider(ISessionStorageService sessionStorage, HttpClient httpClient)
+    public JwtAuthenticationStateProvider(ISessionStorageService sessionStorage)
     {
         _sessionStorage = sessionStorage;
-        _httpClient = httpClient;
         _currentState = new AuthenticationState(_anonymous); 
     }
     
@@ -44,7 +41,6 @@ public class JwtAuthenticationStateProvider: AuthenticationStateProvider
                 
                 if (expiry != null && DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiry)).UtcDateTime > DateTime.UtcNow)
                 {
-                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", savedToken);
                     _currentState = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt")));
                 }
                 else
@@ -71,10 +67,9 @@ public class JwtAuthenticationStateProvider: AuthenticationStateProvider
     public async Task MarkUserLoggedOut()
     {
         await _sessionStorage.RemoveItemAsync(TokenKey);
-        
-        _httpClient.DefaultRequestHeaders.Authorization = null;
-        _currentState = new AuthenticationState(_anonymous);
-        
+
+        _currentState = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+
         NotifyAuthenticationStateChanged(Task.FromResult(_currentState));
     }
     
@@ -83,23 +78,38 @@ public class JwtAuthenticationStateProvider: AuthenticationStateProvider
         var claims = new List<Claim>();
         var payload = jwt.Split('.')[1];
         var jsonBytes = ParseBase64WithoutPadding(payload);
+        
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
-        if (keyValuePairs.TryGetValue(ClaimTypes.Role, out object role))
+        const string roleClaimKey = "role"; 
+        
+        if (keyValuePairs.TryGetValue(roleClaimKey, out object role))
         {
-            if (role is JsonElement roleElement && roleElement.ValueKind == JsonValueKind.String)
+            switch (role)
             {
-                claims.Add(new Claim(ClaimTypes.Role, roleElement.GetString()));
+                case JsonElement { ValueKind: JsonValueKind.String } roleElement:
+                    claims.Add(new Claim(ClaimTypes.Role, roleElement.GetString()));
+                    break;
+                case JsonElement { ValueKind: JsonValueKind.Array } roleArray:
+                    claims.AddRange(roleArray.EnumerateArray()
+                        .Select(r => new Claim(ClaimTypes.Role, r.GetString()))
+                    );
+                    break;
             }
-            else if (role is JsonElement roleArray && roleArray.ValueKind == JsonValueKind.Array)
-            {
-                claims.AddRange(roleArray.EnumerateArray().Select(r => new Claim(ClaimTypes.Role, r.GetString())));
-            }
-            
-            keyValuePairs.Remove(ClaimTypes.Role);
+
+            keyValuePairs.Remove(roleClaimKey);
         }
         
-        claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
+        const string nameClaimKey = "unique_name";
+        
+        if (keyValuePairs.TryGetValue(nameClaimKey, out object name) && name is JsonElement { ValueKind: JsonValueKind.String } nameElement)
+        {
+            claims.Add(new Claim(ClaimTypes.Name, nameElement.GetString()));
+            
+            keyValuePairs.Remove(nameClaimKey);
+        }
+        
+        claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString() ?? string.Empty)));
         
         return claims;
     }

@@ -1,44 +1,27 @@
 using Microsoft.AspNetCore.Components;
-using WebshopFrontend.DTOs;
-using WebshopFrontend.Providers;
+using WebshopFrontend.Agents;
+using WebshopFrontend.DTOs.Requests;
 
 namespace WebshopFrontend.Components.Pages;
 
-public partial class Login : ComponentBase
+public partial class Login(IAuthAgent authAgent) : ComponentBase
 {
-    private LoginRequest LoginRequest = new();
-    private string ErrorMessage;
-
-    private JwtAuthenticationStateProvider JwtProvider => (JwtAuthenticationStateProvider)AuthProvider; 
+    private LoginRequest LoginModel = new();
+    private bool ShowLoginFailed;
 
     private async Task HandleLogin()
     {
-        ErrorMessage = string.Empty;
-        
-        try
+        ShowLoginFailed = false;
+
+        var success = await authAgent.LoginAsync(LoginModel);
+
+        if (success)
         {
-            var response = await Http.PostAsJsonAsync("api/auth/login", LoginRequest);
-            
-            if (response.IsSuccessStatusCode)
-            {
-                var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();
-                
-                await JwtProvider.MarkUserAuthenticated(authResponse.Token);
-                
-                NavManager.NavigateTo("/", forceLoad: true); 
-            }
-            else
-            {
-                ErrorMessage = "Inloggen mislukt. Controleer uw e-mail en wachtwoord.";
-            }
+            NavManager.NavigateTo("/", true);
         }
-        catch (HttpRequestException)
+        else
         {
-            ErrorMessage = "Kan geen verbinding maken met de backend service.";
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Er is een onverwachte fout opgetreden: {ex.Message}";
+            ShowLoginFailed = true;
         }
     }
 }

@@ -1,27 +1,25 @@
 @page "/login"
 @rendermode InteractiveServer
-@using Microsoft.AspNetCore.Components.Authorization
-@inject HttpClient Http
-@inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager NavManager
 
 <h3>Login</h3>
 
-<EditForm Model="LoginRequest" OnValidSubmit="HandleLogin">
+<EditForm Model="LoginModel" OnValidSubmit="HandleLogin">
     <DataAnnotationsValidator />
     
     <div class="form-group">
         <label>Email</label>
-        <InputText @bind-Value="LoginRequest.Email" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Wachtwoord</label>
-        <InputText @bind-Value="LoginRequest.Password" type="password" class="form-control" />
+        <InputText @bind-Value="LoginModel.Email" class="form-control" />
     </div>
     
-    @if (!string.IsNullOrEmpty(ErrorMessage))
+    <div class="form-group">
+        <label>Wachtwoord</label>
+        <InputText @bind-Value="LoginModel.Password" type="password" class="form-control" />
+    </div>
+    
+    @if (ShowLoginFailed)
     {
-        <div class="alert alert-danger mt-3">@ErrorMessage</div>
+        <div class="alert alert-danger mt-3">Inloggen mislukt. Controleer uw e-mail en wachtwoord.</div>
     }
 
     <button type="submit" class="btn btn-primary mt-3">Inloggen</button>

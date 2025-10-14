@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebshopService.Constants;
 using WebshopService.DTOs.Requests;
+using WebshopService.DTOs.Responses;
+using WebshopService.Exceptions;
 using WebshopService.Models;
 using WebshopService.Repositories;
 
@@ -26,9 +28,51 @@ public class AdminProductsController(IProductRepository productRepository) : Con
         };
         
         await productRepository.AddAsync(newProduct, request.CategoryIds);
-
-        var allProducts = await productRepository.GetAllAsync();
         
         return CreatedAtAction(nameof(CreateProduct), new { id = newProduct.Id }, newProduct);
+    }
+
+    [HttpPut("{id:int}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductUpdateRequest request)
+    {
+        if (id != request.Id)
+        {
+            return BadRequest(new Error("Product ID mismatch.", "IWS400"));
+        }
+
+        Product existingProduct;
+        
+        try
+        {
+            existingProduct = await productRepository.GetByIdAsync(id);
+        }
+        catch (ProductNotFoundException exception)
+        {
+            return NotFound(new Error(exception.Message, "IWS404"));
+        }
+
+        await productRepository.UpdateAsync(existingProduct, request);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> DeleteProduct(int id)
+    {
+        try
+        {
+            await productRepository.DeleteAsync(id);
+            
+            return NoContent();
+        }
+        catch (ProductNotFoundException exception)
+        {
+            return NotFound(new Error(exception.Message, "IWS404"));
+        }
     }
 }

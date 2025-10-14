@@ -1,4 +1,4 @@
-namespace WebshopFrontend.DTOs;
+namespace WebshopFrontend.DTOs.Requests;
 
 public class LoginRequest
 {

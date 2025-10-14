@@ -9,6 +9,7 @@
     <ItemGroup>
       <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
       <PackageReference Include="Flurl.Http" Version="4.0.2" />
+      <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" />
     </ItemGroup>
 
 </Project>

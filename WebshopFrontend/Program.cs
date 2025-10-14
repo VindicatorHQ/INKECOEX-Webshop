@@ -1,5 +1,7 @@
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
+using WebshopFrontend.Agents;
 using WebshopFrontend.Components;
 using WebshopFrontend.Providers;
 
@@ -14,14 +16,25 @@ builder.Services.AddServerSideBlazor();
 
 builder.Services.AddBlazoredSessionStorage();
 
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+    })
+    .AddIdentityCookies();
+
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
 
-builder.Services.AddHttpClient("WebshopService", client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5176"); 
-});
+var agentUrl = 
+    Environment.GetEnvironmentVariable("AgentUrl") ??
+    builder.Configuration["AgentUrl"];
 
-builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("WebshopService"));
+builder.Services.AddSingleton(new AgentUrl<ProductAgent>(agentUrl));
+builder.Services.AddTransient<IProductAgent, ProductAgent>();
+
+builder.Services.AddSingleton(new AgentUrl<AuthAgent>(agentUrl));
+builder.Services.AddTransient<IAuthAgent, AuthAgent>();
 
 var app = builder.Build();
 

@@ -6,7 +6,7 @@ using WebshopService.Repositories;
 namespace WebshopService.Controllers;
 
 [AllowAnonymous]
-[Route("api/[controller]")]
+[Route("api/products")]
 public class ProductsController(IProductRepository productRepository) : ControllerBase
 {
     [HttpGet]
@@ -25,5 +25,20 @@ public class ProductsController(IProductRepository productRepository) : Controll
         });
         
         return Ok(response);
+    }
+    
+    [HttpGet("{id}")]
+    [ProducesResponseType(200, Type = typeof(ProductResponse))]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> GetProduct(int id)
+    {
+        var product = await productRepository.GetByIdAsync(id);
+        
+        if (product == null)
+        {
+            return NotFound();
+        }
+        
+        return Ok(product); 
     }
 }

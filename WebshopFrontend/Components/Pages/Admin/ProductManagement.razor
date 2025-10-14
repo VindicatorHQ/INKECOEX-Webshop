@@ -1,0 +1,55 @@
+@page "/admin/products"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Product Beheer</PageTitle>
+
+<h1>Product Beheer</h1>
+<hr />
+
+<AuthorizeView Roles="Admin" Context="authContext">
+    <Authorized>
+        <p>Welkom, beheerder @authContext.User.Identity?.Name. U hebt volledige toegang tot dit paneel.</p>
+        
+        @if (products.Any())
+        {
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Naam</th>
+                    <th>Voorraad</th>
+                    <th>Acties</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var p in products)
+                {
+                    <tr>
+                        <td>@p.Id</td>
+                        <td>@p.Name</td>
+                        <td>@p.StockQuantity</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteProduct(p.Id)">Verwijder</button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else if (!isLoading)
+        {
+            <div class="alert alert-info">Geen producten beschikbaar om te beheren.</div>
+        }
+        
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger mt-3">@ErrorMessage</div>
+        }
+    </Authorized>
+    
+    <NotAuthorized>
+        <div class="alert alert-warning">U bent ingelogd, maar hebt niet de benodigde "Admin" rol voor deze pagina.</div>
+    </NotAuthorized>
+</AuthorizeView>

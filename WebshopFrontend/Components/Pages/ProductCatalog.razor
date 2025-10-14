@@ -1,0 +1,38 @@
+@page "/products"
+
+<PageTitle>Product Catalogus</PageTitle>
+
+<h1>Producten</h1>
+
+@if (isLoading)
+{
+    <p><em>Producten worden geladen...</em></p>
+}
+else if (products.Any())
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Naam</th>
+            <th>Prijs</th>
+            <th>Voorraad</th>
+            <th>Categorieën</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var product in products)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Price.ToString("C2")</td>
+                <td>@product.StockQuantity</td>
+                <td>@product.CategoryNames</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning">Geen producten gevonden.</div>
+}
