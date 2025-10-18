@@ -1,65 +1,20 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebshopService.DTOs.Requests;
 using WebshopService.DTOs.Responses;
-using WebshopService.Models;
 using WebshopService.Repositories.Interface;
 
-namespace WebshopService.Controllers;
+namespace WebshopService.Controllers.Admin;
 
-[Authorize]
-[Route("api/[controller]")]
+[ApiController]
+[Route("api/admin/orders")]
+[Authorize(Roles = "Admin")]
 public class OrdersController(IOrderRepository orderRepository) : ControllerBase
 {
-    private string GetUserId() 
-    {
-        return User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-    }
-
-    [HttpPost]
-    [ProducesResponseType(201, Type = typeof(int))]
-    [ProducesResponseType(400)]
-    public async Task<IActionResult> PlaceOrder([FromBody] CheckoutRequest request)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        try
-        {
-            var address = new ShippingAddress
-            {
-                FullName = request.FullName,
-                Street = request.Street,
-                HouseNumber = request.HouseNumber,
-                ZipCode = request.ZipCode,
-                City = request.City,
-                Country = request.Country
-            };
-            
-            var userId = GetUserId();
-            var orderId = await orderRepository.PlaceOrderAsync(userId, address);
-
-            return StatusCode(201, orderId); 
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception)
-        {
-            return StatusCode(500, "Er is een interne fout opgetreden bij het plaatsen van de bestelling.");
-        }
-    }
-    
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<OrderSummaryResponse>))]
-    public async Task<IActionResult> GetMyOrders()
+    public async Task<IActionResult> GetAllOrders()
     {
-        var userId = GetUserId();
-        var orders = await orderRepository.GetOrdersByUserIdAsync(userId);
+        var orders = await orderRepository.GetAllOrdersAsync();
 
         var response = orders.Select(o => new OrderSummaryResponse
         {
@@ -71,27 +26,26 @@ public class OrdersController(IOrderRepository orderRepository) : ControllerBase
 
         return Ok(response);
     }
-
+    
     [HttpGet("{id:int}")]
     [ProducesResponseType(200, Type = typeof(OrderDetailResponse))]
     [ProducesResponseType(404)]
     public async Task<IActionResult> GetOrderDetails(int id)
     {
-        var userId = GetUserId();
-        var order = await orderRepository.GetOrderDetailAsync(id, userId);
+        var order = await orderRepository.GetOrderDetailsByIdAsync(id);
 
         if (order == null)
         {
             return NotFound();
         }
-    
+        
         var response = new OrderDetailResponse
         {
             OrderId = order.Id,
             OrderDate = order.OrderDate,
             TotalAmount = order.TotalAmount,
             Status = order.Status,
-        
+            
             Items = order.Items.Select(item => new OrderItemResponse
             {
                 ProductId = item.ProductId,
@@ -99,7 +53,7 @@ public class OrdersController(IOrderRepository orderRepository) : ControllerBase
                 PriceAtOrder = item.PriceAtOrder,
                 Quantity = item.Quantity
             }).ToList(),
-        
+            
             FullName = order.ShippingAddress?.FullName ?? string.Empty,
             AddressLine1 = $"{order.ShippingAddress?.Street} {order.ShippingAddress?.HouseNumber}",
             AddressLine2 = $"{order.ShippingAddress?.ZipCode} {order.ShippingAddress?.City}",
@@ -107,5 +61,33 @@ public class OrdersController(IOrderRepository orderRepository) : ControllerBase
         };
 
         return Ok(response);
+    }
+
+    public record UpdateStatusRequest(string NewStatus);
+
+    [HttpPut("{id:int}/status")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateStatusRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.NewStatus))
+        {
+            return BadRequest("Status mag niet leeg zijn.");
+        }
+        
+        try
+        {
+            await orderRepository.UpdateOrderStatusAsync(id, request.NewStatus);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Fout bij het updaten van de status.");
+        }
     }
 }

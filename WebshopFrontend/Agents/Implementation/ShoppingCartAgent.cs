@@ -25,9 +25,9 @@ public class ShoppingCartAgent(AgentUrl<ShoppingCartAgent> agentUrl, ShoppingCar
     {
         try
         {
-            var flurlRequest = await GetAuthorizedRequest("api/carts");
+            var authRequest = await GetAuthorizedRequest("api/carts");
             
-            var cart = flurlRequest.GetJsonAsync<ShoppingCartResponse>().Result;
+            var cart = await authRequest.GetJsonAsync<ShoppingCartResponse>();
             
             if (cart != null) 
             {
@@ -52,11 +52,11 @@ public class ShoppingCartAgent(AgentUrl<ShoppingCartAgent> agentUrl, ShoppingCar
         {
             var request = new { ProductId = productId, Quantity = quantity };
             
-            var flurlRequest = await GetAuthorizedRequest("api/carts/items");
+            var authRequest = await GetAuthorizedRequest("api/carts/items");
             
-            var updatedCart = flurlRequest
+            var updatedCart = await authRequest
                 .PostJsonAsync(request)
-                .ReceiveJson<ShoppingCartResponse>().Result;
+                .ReceiveJson<ShoppingCartResponse>();
             
             if (updatedCart != null)
             {
@@ -77,11 +77,11 @@ public class ShoppingCartAgent(AgentUrl<ShoppingCartAgent> agentUrl, ShoppingCar
     {
         try
         {
-            var flurlRequest = await GetAuthorizedRequest("api/carts/items");
-            
-            return flurlRequest
+            var authRequest = await GetAuthorizedRequest($"api/carts/items/{productId}"); 
+        
+            return await authRequest
                 .DeleteAsync()
-                .ReceiveJson<ShoppingCartResponse>().Result;
+                .ReceiveJson<ShoppingCartResponse>();
         }
         catch (FlurlHttpException ex)
         {

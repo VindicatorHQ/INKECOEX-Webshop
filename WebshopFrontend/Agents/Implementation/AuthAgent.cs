@@ -1,4 +1,3 @@
-using Blazored.SessionStorage;
 using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -9,8 +8,7 @@ using WebshopFrontend.Providers;
 
 namespace WebshopFrontend.Agents.Implementation;
 
-public class AuthAgent(AgentUrl<AuthAgent> agentUrl, AuthenticationStateProvider authProvider, ISessionStorageService sessionStorage)
-    : IAuthAgent
+public class AuthAgent(AgentUrl<AuthAgent> agentUrl, AuthenticationStateProvider authProvider) : IAuthAgent
 {
     private readonly string _baseUrl = agentUrl.Url;
     private readonly JwtAuthenticationStateProvider _jwtProvider = (JwtAuthenticationStateProvider)authProvider;

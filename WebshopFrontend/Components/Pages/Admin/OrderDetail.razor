@@ -1,0 +1,97 @@
+@page "/admin/orders/{OrderId:int}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Order #@OrderId - Admin</PageTitle>
+
+@if (order == null)
+{
+    <p><em>Details laden...</em></p>
+}
+else
+{
+    <h1>Order #@order.OrderId</h1>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Status Beheer</h3>
+            <div class="card card-body bg-light mb-3">
+                <p>Huidige Status: <span class="badge bg-primary fs-5">@order.Status</span></p>
+
+                <EditForm Model="statusUpdate" OnValidSubmit="HandleStatusUpdate">
+                    <div class="mb-3">
+                        <label for="newStatus" class="form-label">Nieuwe Status</label>
+                        <InputSelect id="newStatus" class="form-select" @bind-Value="statusUpdate.NewStatus">
+                            <option value="New">Nieuw</option>
+                            <option value="Processing">Verwerking</option>
+                            <option value="Shipped">Verzonden</option>
+                            <option value="Delivered">Geleverd</option>
+                            <option value="Cancelled">Geannuleerd</option>
+                        </InputSelect>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100" disabled="@isUpdating">
+                        @if (isUpdating) 
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <p>Updaten...</p>
+                        } else {
+                            <p>Status Updaten</p>
+                        }
+                    </button>
+                    
+                    @if (!string.IsNullOrEmpty(statusMessage))
+                    {
+                        <div class="text-success mt-2">@statusMessage</div>
+                    }
+                </EditForm>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <h3>Verzendadres</h3>
+            <div class="card card-body bg-light mb-3">
+                <p class="mb-1 fw-bold">@order.FullName</p>
+                <p class="mb-1">@order.AddressLine1</p>
+                <p class="mb-1">@order.AddressLine2</p>
+                <p class="mb-0">@order.Country</p>
+            </div>
+
+            <h3>Items (@order.Items.Count)</h3>
+            <table class="table table-sm table-striped">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="text-end">Prijs</th>
+                    <th class="text-center">Aantal</th>
+                    <th class="text-end">Subtotaal</th>
+                </tr>
+                </thead>
+                
+                <tbody>
+                @foreach (var item in order.Items)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td class="text-end">€@item.PriceAtOrder</td>
+                        <td class="text-center">@item.Quantity</td>
+                        <td class="text-end">€@item.Subtotal</td>
+                    </tr>
+                }
+                </tbody>
+                
+                <tfoot>
+                    <tr class="table-info">
+                        <td colspan="3" class="text-end fw-bold">Totaal:</td>
+                        <td class="text-end fw-bold">€@order.TotalAmount</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <button class="btn btn-outline-secondary mt-3" @onclick="NavigateToAdminOrdersPage">
+        &larr; Terug naar overzicht
+    </button>
+}

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Responses;
 
-namespace WebshopFrontend.Components.Pages;
+namespace WebshopFrontend.Components.Pages.Products;
 
 public partial class ProductCatalog(IProductAgent productAgent) : ComponentBase
 {

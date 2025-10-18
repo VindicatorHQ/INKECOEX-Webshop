@@ -11,7 +11,7 @@
 @if (cartService.CurrentCart.Items.Count == 0)
 {
     <div class="alert alert-warning">
-        Je **Winkelmandje** is leeg. Ga terug naar de <a href="/shoppingcart">winkelwagen</a>.
+        Je winkelmandje is leeg. Ga terug naar de <a href="/shoppingcart">winkelwagen</a>.
     </div>
 }
 else
@@ -24,16 +24,17 @@ else
                 {
                     <li class="list-group-item d-flex justify-content-between">
                         <div>@item.ProductName x @item.Quantity</div>
-                        <span>@item.Subtotal.ToString("C2")</span>
+                        <span>€@item.Subtotal</span>
                     </li>
                 }
                 <li class="list-group-item d-flex justify-content-between list-group-item-dark fw-bold">
                     <span>Totaal:</span>
-                    <span>@cartService.CurrentCart.TotalPrice.ToString("C2")</span>
+                    <span>€@cartService.CurrentCart.TotalPrice</span>
                 </li>
             </ul>
-
-            <h3>Verzendadres</h3>
+        </div>
+        <div class="col-md-6">
+                        <h3>Verzendadres</h3>
             <EditForm Model="@checkoutRequest" OnValidSubmit="HandleCheckout">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
@@ -75,19 +76,15 @@ else
                 <button type="submit" class="btn btn-success btn-lg w-100 mt-3" disabled="@isProcessing">
                     @if (isProcessing)
                     {
-                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true">
-                            Bestelling plaatsen...
-                        </span>
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <p>Bestelling plaatsen...</p>
                     }
                     else
                     {
-                        <span>Bestelling Plaatsen en Betalen</span>
+                        <p>Bestelling Plaatsen en Betalen</p>
                     }
                 </button>
             </EditForm>
-        </div>
-        <div class="col-md-6">
-            {{-- Hier kan later een betalingswidget komen --}}
         </div>
     </div>
 }

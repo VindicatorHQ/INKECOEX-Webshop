@@ -60,9 +60,9 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
     {
         try
         {
-            var flurlRequest = await GetAuthorizedRequest("api/admin/products");
+            var authRequest = await GetAuthorizedRequest("api/admin/products");
 
-            await flurlRequest
+            await authRequest
                 .PostJsonAsync(request)
                 .ReceiveJson<ProductResponse>();
 
@@ -87,9 +87,9 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
     {
         try
         {
-            var flurlRequest = await GetAuthorizedRequest($"api/admin/products/{id}");
+            var authRequest = await GetAuthorizedRequest($"api/admin/products/{id}");
 
-            await flurlRequest.PutJsonAsync(request);
+            await authRequest.PutJsonAsync(request);
 
             return true;
         }
@@ -111,9 +111,9 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
     {
         try
         {
-            var flurlRequest = await GetAuthorizedRequest($"api/admin/products/{id}");
+            var authRequest = await GetAuthorizedRequest($"api/admin/products/{id}");
 
-            await flurlRequest.DeleteAsync();
+            await authRequest.DeleteAsync();
 
             return true;
         }

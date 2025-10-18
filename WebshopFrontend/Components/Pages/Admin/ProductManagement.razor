@@ -4,7 +4,7 @@
 @attribute [Authorize(Roles = "Admin")]
 @inject NavigationManager NavigationManager
 
-<PageTitle>Product Beheer</PageTitle>
+<PageTitle>Admin Product Beheer</PageTitle>
 
 <AuthorizeView Roles="Admin" Context="authContext">
     <Authorized>
@@ -14,6 +14,7 @@
             <button class="btn btn-success" id="create-product" @onclick="NavigateToProductCreatePage">Product Aanmaken</button>
         </div>
 
+        <p class="text-muted">Overzicht van alle geplaatste bestellingen.</p>
         <hr />
         
         @if (products.Any())

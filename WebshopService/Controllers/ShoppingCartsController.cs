@@ -52,8 +52,7 @@ public class ShoppingCartsController(IShoppingCartRepository shoppingCartReposit
     public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
     {
         var userId = GetUserId();
-        var cart = await shoppingCartRepository.GetByUserIdAsync(userId) 
-                   ?? new ShoppingCart { UserId = userId };
+        var cart = await shoppingCartRepository.GetByUserIdAsync(userId) ?? new ShoppingCart { UserId = userId };
 
         var existingItem = cart.CartItems.FirstOrDefault(i => i.ProductId == request.ProductId);
 
@@ -77,7 +76,7 @@ public class ShoppingCartsController(IShoppingCartRepository shoppingCartReposit
     
     [HttpDelete("items/{productId:int}")]
     [ProducesResponseType(200, Type = typeof(ShoppingCartResponse))]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(404, Type = typeof(Error))]
     public async Task<IActionResult> RemoveFromCart(int productId)
     {
         var userId = GetUserId();
@@ -85,14 +84,14 @@ public class ShoppingCartsController(IShoppingCartRepository shoppingCartReposit
 
         if (cart == null)
         {
-            return NotFound("Winkelwagen niet gevonden.");
+            return NotFound(new Error("Winkelwagen niet gevonden.", "IWS404"));
         }
 
         var itemToRemove = cart.CartItems.FirstOrDefault(i => i.ProductId == productId);
 
         if (itemToRemove == null)
         {
-            return NotFound("Product niet gevonden in winkelwagen.");
+            return NotFound(new Error("Product niet gevonden in winkelwagen.", "IWS404"));
         }
         
         cart.CartItems.Remove(itemToRemove);

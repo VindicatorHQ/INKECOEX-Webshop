@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using WebshopService.Data;
 using WebshopService.Models;
 using WebshopService.Repositories.Interface;
@@ -71,14 +72,52 @@ public class OrderRepository(WebshopDbContext context, IShoppingCartRepository c
             throw; 
         }
     }
-
-    public Task<IEnumerable<Order>> GetAllOrdersAsync()
+    
+    public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId)
     {
-        throw new NotImplementedException();
+        return await context.Orders
+            .Where(o => o.UserId == userId)
+            .OrderByDescending(o => o.OrderDate)
+            .Include(o => o.Items)
+            .ToListAsync();
     }
-
-    public Task<Order?> GetOrderByIdAsync(int orderId)
+    
+    public async Task<Order?> GetOrderDetailAsync(int orderId, string userId)
     {
-        throw new NotImplementedException();
+        return await context.Orders
+            .Where(o => o.Id == orderId && o.UserId == userId)
+            .Include(o => o.Items)
+            .Include(o => o.ShippingAddress)
+            .FirstOrDefaultAsync();
+    }
+    
+    public async Task<IEnumerable<Order>> GetAllOrdersAsync()
+    {
+        return await context.Orders
+            .OrderByDescending(o => o.OrderDate)
+            .Include(o => o.Items)
+            .ToListAsync();
+    }
+    
+    public async Task<Order?> GetOrderDetailsByIdAsync(int orderId)
+    {
+        return await context.Orders
+            .Where(o => o.Id == orderId)
+            .Include(o => o.Items)
+            .Include(o => o.ShippingAddress)
+            .FirstOrDefaultAsync();
+    }
+    
+    public async Task UpdateOrderStatusAsync(int orderId, string newStatus)
+    {
+        var order = await context.Orders.FindAsync(orderId);
+        
+        if (order == null)
+        {
+            throw new KeyNotFoundException($"Order met ID {orderId} niet gevonden.");
+        }
+        
+        order.Status = newStatus;
+        await context.SaveChangesAsync();
     }
 }

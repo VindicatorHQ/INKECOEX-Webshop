@@ -12,7 +12,7 @@
 }
 else if (cartService.CurrentCart.Items.Count == 0)
 {
-    <p class="alert alert-info">Je **Winkelmandje** is leeg. Ga naar de <a href="/products">productenpagina</a> om te beginnen met winkelen.</p>
+    <p class="alert alert-info">Je winkelmandje is leeg. Ga naar de <a href="/products">productenpagina</a> om te beginnen met winkelen.</p>
 }
 else
 {
@@ -33,11 +33,11 @@ else
                     <td>
                         <a href="/products/@item.ProductId">@item.ProductName</a>
                     </td>
-                    <td class="text-end">@item.Price.ToString("C2")</td>
+                    <td class="text-end">€@item.Price</td>
                     <td class="text-center">
                         <strong>@item.Quantity</strong>
                     </td>
-                    <td class="text-end">@item.Subtotal.ToString("C2")</td>
+                    <td class="text-end">€@item.Subtotal</td>
                     <td>
                         <button class="btn btn-sm btn-danger" title="Verwijderen" @onclick="() => RemoveItem(item.ProductId)">
                             <span class="oi oi-trash" aria-hidden="true"></span>
@@ -49,14 +49,14 @@ else
         <tfoot>
             <tr class="table-dark">
                 <td colspan="3" class="text-end fw-bold">Totaal:</td>
-                <td colspan="2" class="fw-bold text-end">@cartService.CurrentCart.TotalPrice.ToString("C2")</td>
+                <td colspan="2" class="fw-bold text-end">€@cartService.CurrentCart.TotalPrice</td>
             </tr>
         </tfoot>
     </table>
 
     <div class="d-flex justify-content-end mt-4">
         <button class="btn btn-success btn-lg" @onclick="StartCheckout">
-            Afrekenen (@cartService.CurrentCart.TotalPrice.ToString("C2"))
+            Afrekenen (€@cartService.CurrentCart.TotalPrice)
         </button>
     </div>
     

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Responses;
 
-namespace WebshopFrontend.Components.Pages;
+namespace WebshopFrontend.Components.Pages.Products;
 
 public partial class ProductDetail(IProductAgent productAgent, IShoppingCartAgent shoppingCartAgent) : ComponentBase
 {
@@ -17,7 +17,7 @@ public partial class ProductDetail(IProductAgent productAgent, IShoppingCartAgen
         
         if (product == null)
         {
-            // Eventueel: toon foutmelding of navigeer naar 404
+            NavigationManager.NavigateTo("/products");
         }
     }
     
@@ -28,7 +28,6 @@ public partial class ProductDetail(IProductAgent productAgent, IShoppingCartAgen
         if (updatedCart != null)
         {
             showSuccess = true;
-            // TODO: Later moeten we de ShoppingCart state updaten (zie volgende stap)
 
             await Task.Delay(3000);
             

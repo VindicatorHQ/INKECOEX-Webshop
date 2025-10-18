@@ -7,12 +7,12 @@ using WebshopService.Exceptions;
 using WebshopService.Models;
 using WebshopService.Repositories.Interface;
 
-namespace WebshopService.Controllers;
+namespace WebshopService.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/products")]
 [Authorize(Roles = Roles.Admin)]
-public class AdminProductsController(IProductRepository productRepository) : ControllerBase
+public class ProductsController(IProductRepository productRepository) : ControllerBase
 {
     [HttpGet("{id:int}")]
     [ProducesResponseType(200, Type = typeof(ProductResponse))]
