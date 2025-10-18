@@ -48,6 +48,9 @@ builder.Services.AddTransient<IProductAgent, ProductAgent>();
 builder.Services.AddSingleton(new AgentUrl<ShoppingCartAgent>(agentUrl));
 builder.Services.AddTransient<IShoppingCartAgent, ShoppingCartAgent>();
 
+builder.Services.AddSingleton(new AgentUrl<UserAgent>(agentUrl));
+builder.Services.AddTransient<IUserAgent, UserAgent>();
+
 builder.Services.AddSingleton<IDebounceService, DebounceService>();
 builder.Services.AddScoped<IThemeService, ThemeService>();
 builder.Services.AddSingleton<ShoppingCartService>();

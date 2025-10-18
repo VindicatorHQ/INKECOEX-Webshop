@@ -15,6 +15,7 @@ public class WebshopDbContext(DbContextOptions<WebshopDbContext> options) : Iden
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<ShoppingCart> ShoppingCarts { get; set; }
     public DbSet<CartItem> CartItems { get; set; }
+    public DbSet<UserProfile> UserProfiles { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -27,5 +28,15 @@ public class WebshopDbContext(DbContextOptions<WebshopDbContext> options) : Iden
         builder.ApplyConfiguration(new ProductCategoryConfiguration());
         builder.ApplyConfiguration(new ProductConfiguration());
         builder.ApplyConfiguration(new ShoppingCartConfiguration());
+        
+        builder.Entity<UserProfile>()
+            .HasKey(p => p.UserId);
+
+        builder.Entity<UserProfile>()
+            .HasOne(p => p.User)
+            .WithOne()
+            .HasForeignKey<UserProfile>(p => p.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

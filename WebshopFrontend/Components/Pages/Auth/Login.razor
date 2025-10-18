@@ -11,19 +11,19 @@
     <EditForm Model="LoginModel" OnValidSubmit="HandleLogin">
         <DataAnnotationsValidator />
     
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label>Email</label>
             <InputText @bind-Value="LoginModel.Email" class="form-control" />
         </div>
     
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label>Wachtwoord</label>
             <InputText @bind-Value="LoginModel.Password" type="password" class="form-control" />
         </div>
     
         @if (ShowLoginFailed)
         {
-            <div class="alert alert-danger mt-3">Inloggen mislukt. Controleer uw e-mail en wachtwoord.</div>
+            <div class="alert alert-danger mb-3">Inloggen mislukt. Controleer uw e-mail en wachtwoord.</div>
         }
 
         <button type="submit" class="btn btn-primary w-100 fw-bold">Inloggen</button>
