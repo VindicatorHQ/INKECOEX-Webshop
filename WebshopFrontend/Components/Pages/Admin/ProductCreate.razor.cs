@@ -6,7 +6,7 @@ namespace WebshopFrontend.Components.Pages.Admin;
 
 public partial class ProductCreate(IProductAgent productAgent) : ComponentBase
 {
-    private ProductCreateRequest ProductRequest = new();
+    private ProductRequest ProductRequest = new();
     private bool ShowError;
 
     private async Task HandleCreate()

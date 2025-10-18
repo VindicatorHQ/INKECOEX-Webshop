@@ -8,6 +8,9 @@ namespace WebshopFrontend.Components.Layout;
 
 public partial class LoginDisplay(IAuthAgent authAgent, ShoppingCartService cartService) : ComponentBase, IDisposable
 {
+    [Inject]
+    private IThemeService themeService { get; set; } = default!; 
+    
     private async Task Logout()
     {
         await authAgent.LogoutAsync();
@@ -15,21 +18,35 @@ public partial class LoginDisplay(IAuthAgent authAgent, ShoppingCartService cart
         NavigationManager.NavigateTo("/", forceLoad: true);
     }
     
+    private async Task ToggleTheme()
+    {
+        await themeService.ToggleThemeAsync();
+    }
+    
     protected override void OnInitialized()
     {
         cartService.OnChange += HandleCartChanged;
-        
-        // Optioneel: probeer de cart bij het opstarten op te halen als de gebruiker ingelogd is
-        // Dit is beter te doen in de MainLayout om een race condition te voorkomen.
+        themeService.OnThemeChanged += StateHasChanged;
     }
 
     private void HandleCartChanged()
     {
         InvokeAsync(StateHasChanged);
     }
+
+    private void NavigateToLoginPage()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+    
+    private void NavigateToRegisterPage()
+    {
+        NavigationManager.NavigateTo("/register");
+    }
     
     public void Dispose()
     {
         cartService.OnChange -= HandleCartChanged;
+        themeService.OnThemeChanged -= StateHasChanged;
     }
 }

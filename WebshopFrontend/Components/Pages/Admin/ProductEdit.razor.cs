@@ -8,17 +8,17 @@ public partial class ProductEdit(IProductAgent productAgent) : ComponentBase
 {
     [Parameter] public int ProductId { get; set; }
 
-    private ProductCreateRequest? productRequest;
+    private ProductRequest? productRequest;
     private bool isLoading = true;
     private bool ShowError;
 
     protected override async Task OnInitializedAsync()
     {
-        var productResponse = await productAgent.GetByIdAsync(ProductId);
+        var productResponse = await productAgent.GetProductByIdAsync(ProductId);
         
         if (productResponse != null)
         {
-            productRequest = new ProductCreateRequest
+            productRequest = new ProductRequest
             {
                 Id = ProductId,
                 Name = productResponse.Name,

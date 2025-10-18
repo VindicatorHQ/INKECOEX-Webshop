@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Components;
+using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Requests;
 using WebshopFrontend.DTOs.Responses;
 
 namespace WebshopFrontend.Components.Admin;
 
-public partial class ProductForm : ComponentBase
+public partial class ProductForm(ICategoryAgent categoryAgent) : ComponentBase
 {
-    [Parameter] public ProductCreateRequest ProductRequest { get; set; } = new();
+    [Parameter] public ProductRequest ProductRequest { get; set; } = new();
     [Parameter] public EventCallback OnValidSubmit { get; set; }
     [Parameter] public string Title { get; set; } = "Nieuw Product";
     [Parameter] public string ButtonText { get; set; } = "Opslaan";
@@ -15,7 +16,7 @@ public partial class ProductForm : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await CategoryAgent.GetCategoriesAsync();
+        categories = await categoryAgent.GetAllCategoriesAsync();
     }
     
     private void ToggleCategory(int categoryId)
@@ -24,5 +25,7 @@ public partial class ProductForm : ComponentBase
         {
             ProductRequest.CategoryIds.Add(categoryId);
         }
+        
+        StateHasChanged();
     }
 }

@@ -10,23 +10,20 @@ namespace WebshopFrontend.Agents.Implementation;
 public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageService sessionStorage) : IProductAgent
 {
     private readonly string _baseUrl = agentUrl.Url;
+    private readonly SessionStorage _sessionStorage = new(sessionStorage);
     
-    private async Task<IFlurlRequest> GetAuthorizedRequest(string path)
-    {
-        var token = await sessionStorage.GetItemAsStringAsync("authToken");
-
-        return _baseUrl
-            .AppendPathSegment(path)
-            .WithOAuthBearerToken(token);
-    }
-    
-    public async Task<List<ProductResponse>> GetAsync()
+    public async Task<List<ProductResponse>> GetAllProductsAsync(string? searchTerm = null)
     {
         try
         {
-            var products = await _baseUrl
-                .AppendPathSegment("api/products")
-                .GetJsonAsync<List<ProductResponse>>();
+            var request = _baseUrl.AppendPathSegment("api/products");
+            
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                request = request.SetQueryParam("search", searchTerm);
+            }
+            
+            var products = await request.GetJsonAsync<List<ProductResponse>>();
             
             return products ?? [];
         }
@@ -38,7 +35,7 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
         }
     }
     
-    public async Task<ProductResponse?> GetByIdAsync(int id)
+    public async Task<ProductResponse?> GetProductByIdAsync(int id)
     {
         try
         {
@@ -56,11 +53,11 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
         }
     }
     
-    public async Task<bool> CreateAsync(ProductCreateRequest request)
+    public async Task<bool> CreateAsync(ProductRequest request)
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest("api/admin/products");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,"api/admin/products");
 
             await authRequest
                 .PostJsonAsync(request)
@@ -83,11 +80,11 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
         }
     }
 
-    public async Task<bool> UpdateAsync(int id, ProductCreateRequest request)
+    public async Task<bool> UpdateAsync(int id, ProductRequest request)
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest($"api/admin/products/{id}");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,$"api/admin/products/{id}");
 
             await authRequest.PutJsonAsync(request);
 
@@ -111,7 +108,7 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest($"api/admin/products/{id}");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,$"api/admin/products/{id}");
 
             await authRequest.DeleteAsync();
 

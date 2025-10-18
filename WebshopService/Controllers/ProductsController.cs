@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebshopService.DTOs.Responses;
 using WebshopService.Exceptions;
@@ -7,15 +6,14 @@ using WebshopService.Repositories.Interface;
 
 namespace WebshopService.Controllers;
 
-[AllowAnonymous]
 [Route("api/products")]
 public class ProductsController(IProductRepository productRepository) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<ProductResponse>))]
-    public async Task<IActionResult> GetProducts()
+    [ProducesResponseType<IEnumerable<ProductResponse>>(StatusCodes.Status200OK, "application/json")]
+    public async Task<IActionResult> GetAllProducts([FromQuery(Name = "search")] string? searchTerm)
     {
-        var products = await productRepository.GetAllAsync();
+        var products = await productRepository.GetAllAsync(searchTerm);
         
         var response = products.Select(product => new ProductResponse 
         {
@@ -32,8 +30,8 @@ public class ProductsController(IProductRepository productRepository) : Controll
     }
     
     [HttpGet("{id:int}")]
-    [ProducesResponseType(200, Type = typeof(ProductResponse))]
-    [ProducesResponseType(404, Type = typeof(Error))]
+    [ProducesResponseType<ProductResponse>(StatusCodes.Status200OK, "application/json")]
+    [ProducesResponseType<Error>(StatusCodes.Status404NotFound, "application/json")]
     public async Task<IActionResult> GetProduct(int id)
     {
         Product product;

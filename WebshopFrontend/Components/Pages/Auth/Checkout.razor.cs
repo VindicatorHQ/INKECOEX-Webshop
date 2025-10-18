@@ -4,7 +4,7 @@ using WebshopFrontend.DTOs.Requests;
 using WebshopFrontend.DTOs.Responses;
 using WebshopFrontend.Services;
 
-namespace WebshopFrontend.Components.Pages;
+namespace WebshopFrontend.Components.Pages.Auth;
 
 public partial class Checkout(IOrderAgent orderAgent, ShoppingCartService cartService) : ComponentBase
 {
@@ -27,7 +27,6 @@ public partial class Checkout(IOrderAgent orderAgent, ShoppingCartService cartSe
         }
         else
         {
-            // Toon foutmelding (bijv. onvoldoende voorraad, of algemene fout)
             errorMessage = "Kon de bestelling niet plaatsen. Controleer je adres of de voorraad.";
             
             isProcessing = false;

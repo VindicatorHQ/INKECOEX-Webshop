@@ -11,21 +11,13 @@ namespace WebshopFrontend.Agents.Implementation;
 public class OrderAgent(AgentUrl<OrderAgent> agentUrl, ISessionStorageService sessionStorage) : IOrderAgent
 {
     private readonly string _baseUrl = agentUrl.Url;
-    
-    private async Task<IFlurlRequest> GetAuthorizedRequest(string path)
-    {
-        var token = await sessionStorage.GetItemAsStringAsync("authToken");
-
-        return _baseUrl
-            .AppendPathSegment(path)
-            .WithOAuthBearerToken(token);
-    }
+    private readonly SessionStorage _sessionStorage = new(sessionStorage);
     
     public async Task<int?> PlaceOrderAsync(CheckoutRequest request)
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest("api/orders");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,"api/orders");
             
             return await authRequest
                 .PostJsonAsync(request)
@@ -51,7 +43,7 @@ public class OrderAgent(AgentUrl<OrderAgent> agentUrl, ISessionStorageService se
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest("api/orders");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,"api/orders");
             
             return await authRequest.GetJsonAsync<List<OrderSummaryResponse>>();
         }
@@ -69,7 +61,7 @@ public class OrderAgent(AgentUrl<OrderAgent> agentUrl, ISessionStorageService se
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest($"api/orders/{orderId}");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,$"api/orders/{orderId}");
             
             return await authRequest.GetJsonAsync<OrderDetailResponse>();
         }
@@ -87,7 +79,7 @@ public class OrderAgent(AgentUrl<OrderAgent> agentUrl, ISessionStorageService se
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest("api/admin/orders");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,"api/admin/orders");
             
             return await authRequest.GetJsonAsync<List<OrderSummaryResponse>>();
         }
@@ -101,7 +93,7 @@ public class OrderAgent(AgentUrl<OrderAgent> agentUrl, ISessionStorageService se
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest($"api/admin/orders/{orderId}");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,$"api/admin/orders/{orderId}");
             
             return await authRequest.GetJsonAsync<OrderDetailResponse>();
         }
@@ -115,7 +107,7 @@ public class OrderAgent(AgentUrl<OrderAgent> agentUrl, ISessionStorageService se
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest($"api/admin/orders/{orderId}/status");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,$"api/admin/orders/{orderId}/status");
             
             var request = new { NewStatus = newStatus };
             

@@ -9,17 +9,31 @@ namespace WebshopService.Repositories.Implementation;
 
 public class ProductRepository(WebshopDbContext context) : IProductRepository
 {
-    public async Task<IEnumerable<Product>> GetAllAsync()
+    public async Task<IEnumerable<Product>> GetAllAsync(string? searchTerm = null)
     {
-        return await context.Products
+        var query = context.Products
             .Include(p => p.ProductCategories)
-            .ThenInclude(pc => pc.Category)
-            .ToListAsync();
+            .ThenInclude(pc => pc.Category);
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return await query.ToListAsync();
+        }
+
+        var lowerCaseTerm = searchTerm.Trim().ToLower();
+        
+        return await query.Where(p => 
+            p.Name.ToLower().Contains(lowerCaseTerm) || 
+            p.Description.ToLower().Contains(lowerCaseTerm))
+        .ToListAsync();
     }
 
     public Task<Product> GetByIdAsync(int id)
     {
-        var existingProduct = context.Products.FirstOrDefault(p => p.Id == id);
+        var existingProduct = context.Products
+            .Include(p => p.ProductCategories)
+            .ThenInclude(pc => pc.Category)
+            .FirstOrDefault(p => p.Id == id);
         
         if (existingProduct == null)
         {
@@ -38,7 +52,7 @@ public class ProductRepository(WebshopDbContext context) : IProductRepository
         return product;
     }
 
-    public async Task UpdateAsync(Product existingProduct, ProductCreateRequest product)
+    public async Task UpdateAsync(Product existingProduct, ProductRequest product)
     {
         context.Entry(existingProduct).CurrentValues.SetValues(product);
         

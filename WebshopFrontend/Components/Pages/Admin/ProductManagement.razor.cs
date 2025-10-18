@@ -1,18 +1,26 @@
 using Microsoft.AspNetCore.Components;
 using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Responses;
+using WebshopFrontend.Services;
 
 namespace WebshopFrontend.Components.Pages.Admin;
 
-public partial class ProductManagement(IProductAgent productAgent) : ComponentBase
+public partial class ProductManagement(IProductAgent productAgent, IDebounceService debounceService) : ComponentBase, IDisposable
 {
-    private List<ProductResponse> products = new();
+    private readonly object _debounceKey = new();
+    private SearchModel searchModel = new();
+    private List<ProductResponse> products = [];
     private string ErrorMessage { get; set; } = string.Empty;
     private bool isLoading = true;
+    
+    private class SearchModel
+    {
+        public string? SearchTerm { get; set; }
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        products = await productAgent.GetAsync(); 
+        await LoadProducts();
         
         isLoading = false;
     }
@@ -41,5 +49,43 @@ public partial class ProductManagement(IProductAgent productAgent) : ComponentBa
     private void NavigateToProductEditPage(int id)
     {
         NavigationManager.NavigateTo($"/admin/products/edit/{id}");
+    }
+    
+    private async Task LoadProducts()
+    {
+        products = await productAgent.GetAllProductsAsync(searchModel.SearchTerm);
+        
+        StateHasChanged(); 
+    }
+
+    private async Task HandleSearch()
+    {
+        await LoadProducts();
+    }
+    
+    private async Task ClearSearch()
+    {
+        searchModel.SearchTerm = null;
+        
+        debounceService.Cancel(_debounceKey);
+        
+        await LoadProducts();
+    }
+    
+    private void HandleInput(ChangeEventArgs e)
+    {
+        searchModel.SearchTerm = e.Value?.ToString();
+        
+        debounceService.Debounce(300, SearchAction, _debounceKey);
+    }
+
+    private void SearchAction()
+    {
+        InvokeAsync(LoadProducts);
+    }
+
+    public void Dispose()
+    {
+        debounceService.Cancel(_debounceKey);
     }
 }

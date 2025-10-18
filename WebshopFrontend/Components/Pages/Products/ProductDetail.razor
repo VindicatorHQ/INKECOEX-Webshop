@@ -24,15 +24,16 @@ else
                 {
                     <p class="text-success fw-bold">Op voorraad (@product.StockQuantity stuks)</p>
             
+                    @if (showSuccess)
+                    {
+                        <span class="text-success ms-2">Toegevoegd!</span>
+                    }
+                    
                     <AuthorizeView>
                         <Authorized>
                             <button class="btn btn-primary" @onclick="AddToCart">Toevoegen aan ShoppingCart</button>
-                            
-                            @if (showSuccess)
-                            {
-                                <span class="text-success ms-2">Toegevoegd!</span>
-                            }
                         </Authorized>
+                        
                         <NotAuthorized>
                             <a href="/login" class="btn btn-outline-secondary">Log in om te bestellen</a>
                         </NotAuthorized>

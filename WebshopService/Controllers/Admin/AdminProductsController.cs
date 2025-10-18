@@ -12,42 +12,12 @@ namespace WebshopService.Controllers.Admin;
 [ApiController]
 [Route("api/admin/products")]
 [Authorize(Roles = Roles.Admin)]
-public class ProductsController(IProductRepository productRepository) : ControllerBase
+public class AdminProductsController(IProductRepository productRepository) : ProductsController(productRepository)
 {
-    [HttpGet("{id:int}")]
-    [ProducesResponseType(200, Type = typeof(ProductResponse))]
-    [ProducesResponseType(404, Type = typeof(Error))]
-    public async Task<IActionResult> GetProduct(int id)
-    {
-        Product product;
-        
-        try
-        {
-            product = await productRepository.GetByIdAsync(id);
-        }
-        catch (ProductNotFoundException exception)
-        {
-            return NotFound(new Error(exception.Message, "IWS404"));
-        }
-        
-        var response = new ProductResponse
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Description = product.Description,
-            Price = product.Price,
-            StockQuantity = product.StockQuantity,
-            CategoryIds = product.ProductCategories.Select(pc => pc.Category.Id).ToList(),
-            CategoryNames = string.Join(", ", product.ProductCategories.Select(cp => cp.Category.Name))
-        };
-        
-        return Ok(response);
-    }
-    
     [HttpPost]
-    [ProducesResponseType(201, Type = typeof(ProductResponse))]
-    [ProducesResponseType(400, Type = typeof(Error))]
-    public async Task<IActionResult> CreateProduct([FromBody] ProductCreateRequest request)
+    [ProducesResponseType<ProductResponse>(StatusCodes.Status201Created, "application/json")]
+    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest, "application/json")]
+    public async Task<IActionResult> CreateProduct([FromBody] ProductRequest request)
     {
         if (!ModelState.IsValid)
         {
@@ -62,7 +32,7 @@ public class ProductsController(IProductRepository productRepository) : Controll
             StockQuantity = request.StockQuantity,
         
             ProductCategories = request.CategoryIds
-                .Select(categoryId => new ProductCategory() { CategoryId = categoryId })
+                .Select(categoryId => new ProductCategory { CategoryId = categoryId })
                 .ToList()
         };
     
@@ -82,10 +52,10 @@ public class ProductsController(IProductRepository productRepository) : Controll
     }
 
     [HttpPut("{id:int}")]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(400, Type = typeof(Error))]
-    [ProducesResponseType(404, Type = typeof(Error))]
-    public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductCreateRequest request)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest, "application/json")]
+    [ProducesResponseType<Error>(StatusCodes.Status404NotFound, "application/json")]
+    public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductRequest request)
     {
         if (id != request.Id)
         {
@@ -109,8 +79,8 @@ public class ProductsController(IProductRepository productRepository) : Controll
     }
 
     [HttpDelete("{id:int}")]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(404, Type = typeof(Error))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<Error>(StatusCodes.Status404NotFound, "application/json")]
     public async Task<IActionResult> DeleteProduct(int id)
     {
         try

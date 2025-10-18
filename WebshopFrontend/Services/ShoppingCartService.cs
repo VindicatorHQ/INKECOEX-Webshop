@@ -4,7 +4,7 @@ namespace WebshopFrontend.Services;
 
 public class ShoppingCartService
 {
-    public ShoppingCartResponse CurrentCart { get; private set; } = new ShoppingCartResponse();
+    public ShoppingCartResponse CurrentCart { get; private set; } = new();
     
     public event Action? OnChange;
 

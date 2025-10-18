@@ -1,0 +1,35 @@
+@page "/login"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+
+<PageTitle>Inloggen</PageTitle>
+
+<div class="card shadow-lg p-4 mx-auto my-5" style="max-width: 450px;">
+    <h3 class="card-title text-center">Inloggen</h3>
+    <hr />
+
+    <EditForm Model="LoginModel" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator />
+    
+        <div class="form-group">
+            <label>Email</label>
+            <InputText @bind-Value="LoginModel.Email" class="form-control" />
+        </div>
+    
+        <div class="form-group">
+            <label>Wachtwoord</label>
+            <InputText @bind-Value="LoginModel.Password" type="password" class="form-control" />
+        </div>
+    
+        @if (ShowLoginFailed)
+        {
+            <div class="alert alert-danger mt-3">Inloggen mislukt. Controleer uw e-mail en wachtwoord.</div>
+        }
+
+        <button type="submit" class="btn btn-primary w-100 fw-bold">Inloggen</button>
+    </EditForm>
+    
+    <p class="text-center mt-3">
+        Nog geen account aangemaakt? <a href="register">Registreer hier!</a>
+    </p>
+</div>

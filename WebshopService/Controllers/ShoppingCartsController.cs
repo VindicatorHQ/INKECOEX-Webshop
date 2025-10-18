@@ -19,7 +19,7 @@ public class ShoppingCartsController(IShoppingCartRepository shoppingCartReposit
     }
     
     [HttpGet]
-    [ProducesResponseType(200, Type = typeof(ShoppingCartResponse))]
+    [ProducesResponseType<ShoppingCartResponse>(StatusCodes.Status200OK, "application/json")]
     public async Task<IActionResult> GetCart()
     {
         var userId = GetUserId();
@@ -46,9 +46,9 @@ public class ShoppingCartsController(IShoppingCartRepository shoppingCartReposit
     }
 
     [HttpPost("items")]
-    [ProducesResponseType(200, Type = typeof(ShoppingCartResponse))]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType<ShoppingCartResponse>(StatusCodes.Status200OK, "application/json")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
     {
         var userId = GetUserId();
@@ -75,8 +75,8 @@ public class ShoppingCartsController(IShoppingCartRepository shoppingCartReposit
     }
     
     [HttpDelete("items/{productId:int}")]
-    [ProducesResponseType(200, Type = typeof(ShoppingCartResponse))]
-    [ProducesResponseType(404, Type = typeof(Error))]
+    [ProducesResponseType<ShoppingCartResponse>(StatusCodes.Status200OK, "application/json")]
+    [ProducesResponseType<Error>(StatusCodes.Status404NotFound, "application/json")]
     public async Task<IActionResult> RemoveFromCart(int productId)
     {
         var userId = GetUserId();
@@ -87,14 +87,22 @@ public class ShoppingCartsController(IShoppingCartRepository shoppingCartReposit
             return NotFound(new Error("Winkelwagen niet gevonden.", "IWS404"));
         }
 
-        var itemToRemove = cart.CartItems.FirstOrDefault(i => i.ProductId == productId);
+        var itemToModify = cart.CartItems.FirstOrDefault(i => i.ProductId == productId);
 
-        if (itemToRemove == null)
+        if (itemToModify == null)
         {
             return NotFound(new Error("Product niet gevonden in winkelwagen.", "IWS404"));
         }
-        
-        cart.CartItems.Remove(itemToRemove);
+    
+        if (itemToModify.Quantity > 1)
+        {
+            itemToModify.Quantity -= 1;
+        }
+        else
+        {
+            cart.CartItems.Remove(itemToModify);
+        }
+    
         await shoppingCartRepository.SaveAsync(cart);
 
         return await GetCart();

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WebshopService.Constants;
 using WebshopService.Data;
-using WebshopService.DTOs;
 using WebshopService.DTOs.Requests;
 using WebshopService.DTOs.Responses;
 
@@ -31,7 +31,36 @@ public class AuthController(UserManager<IdentityUser> userManager, IConfiguratio
         return Ok(token);
     }
 
-    // TODO: Voeg een 'Register' endpoint toe voor nieuwe Consumers
-    // [HttpPost("register")]
-    // ...
+    [HttpPost("register")]
+    [ProducesResponseType(201)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest model)
+    {
+        var userExists = await userManager.FindByEmailAsync(model.Email);
+        
+        if (userExists != null)
+        {
+            return BadRequest(new Error("E-mailadres is al in gebruik.", "IWS400"));
+        }
+
+        var user = new IdentityUser
+        {
+            Email = model.Email,
+            UserName = model.Email,
+            SecurityStamp = Guid.NewGuid().ToString()
+        };
+
+        var result = await userManager.CreateAsync(user, model.Password);
+
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.Select(e => e.Description);
+            
+            return BadRequest(new { message = "Gebruiker aanmaken mislukt.", errors });
+        }
+
+        await userManager.AddToRoleAsync(user, Roles.Consumer);
+
+        return StatusCode(201, new { message = "Gebruiker succesvol geregistreerd." });
+    }
 }

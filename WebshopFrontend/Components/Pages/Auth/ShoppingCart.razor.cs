@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.Services;
 
-namespace WebshopFrontend.Components.Pages;
+namespace WebshopFrontend.Components.Pages.Auth;
 
 public partial class ShoppingCart(IShoppingCartAgent shoppingCartAgent, ShoppingCartService cartService) : ComponentBase, IDisposable
 {
@@ -40,6 +40,7 @@ public partial class ShoppingCart(IShoppingCartAgent shoppingCartAgent, Shopping
             Console.WriteLine("Fout bij het verwijderen van item uit ShoppingCart.");
         }
         
+        cartService.SetCart(updatedCart);
         isLoading = false;
     }
     

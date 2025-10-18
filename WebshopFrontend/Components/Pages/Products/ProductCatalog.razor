@@ -5,6 +5,23 @@
 
 <h1>Producten</h1>
 
+<div class="mb-4">
+    <div class="input-group">
+    <InputText 
+        @bind-Value="searchModel.SearchTerm" 
+        @oninput="HandleInput"
+        class="form-control" 
+        placeholder="Zoek op naam of beschrijving..." />
+
+    <button type="button" class="btn btn-primary" @onclick="HandleSearch">Zoek</button>
+
+    @if (!string.IsNullOrEmpty(searchModel.SearchTerm))
+    {
+        <button type="button" class="btn btn-outline-secondary" @onclick="ClearSearch">Reset</button>
+    }
+    </div>
+</div>
+
 @if (isLoading)
 {
     <p><em>Producten worden geladen...</em></p>

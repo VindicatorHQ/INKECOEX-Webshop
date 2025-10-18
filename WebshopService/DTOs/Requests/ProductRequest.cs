@@ -1,6 +1,6 @@
-namespace WebshopFrontend.DTOs.Requests;
+namespace WebshopService.DTOs.Requests;
 
-public class ProductCreateRequest
+public class ProductRequest
 {
     public int? Id { get; set; }
     public string Name { get; set; } = string.Empty;

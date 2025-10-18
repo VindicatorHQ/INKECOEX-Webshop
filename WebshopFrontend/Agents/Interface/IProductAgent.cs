@@ -5,11 +5,11 @@ namespace WebshopFrontend.Agents.Interface;
 
 public interface IProductAgent
 {
-    Task<List<ProductResponse>> GetAsync();
-    Task<ProductResponse?> GetByIdAsync(int id);
+    Task<List<ProductResponse>> GetAllProductsAsync(string? searchTerm = null);
+    Task<ProductResponse?> GetProductByIdAsync(int id);
 
     // Admin Routes
-    Task<bool> CreateAsync(ProductCreateRequest request);
-    Task<bool> UpdateAsync(int id, ProductCreateRequest request);
+    Task<bool> CreateAsync(ProductRequest request);
+    Task<bool> UpdateAsync(int id, ProductRequest request);
     Task<bool> DeleteAsync(int id);
 }

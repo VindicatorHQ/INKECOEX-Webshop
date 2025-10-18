@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Components;
-using WebshopFrontend.Agents;
 using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Requests;
 
-namespace WebshopFrontend.Components.Pages;
+namespace WebshopFrontend.Components.Pages.Auth;
 
 public partial class Login(IAuthAgent authAgent) : ComponentBase
 {

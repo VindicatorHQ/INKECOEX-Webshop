@@ -44,6 +44,30 @@ public class AuthAgent(AgentUrl<AuthAgent> agentUrl, AuthenticationStateProvider
             return false;
         }
     }
+    
+    public async Task<bool> RegisterAsync(RegisterRequest request)
+    {
+        try
+        {
+            var registerDto = new 
+            {
+                request.Email,
+                request.Password
+            };
+            
+            var response = await _baseUrl
+                .AppendPathSegment("api/auth/register")
+                .PostJsonAsync(registerDto);
+            
+            return response.ResponseMessage.IsSuccessStatusCode;
+        }
+        catch (FlurlHttpException ex)
+        {
+            Console.WriteLine($"Registratiefout: Status {ex.StatusCode}, Bericht: {await ex.GetResponseStringAsync()}");
+            
+            return false;
+        }
+    }
 
     public async Task LogoutAsync()
     {

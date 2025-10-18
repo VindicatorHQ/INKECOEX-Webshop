@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebshopService.DTOs.Requests;
 using WebshopService.DTOs.Responses;
 using WebshopService.Repositories.Interface;
 
@@ -8,10 +9,10 @@ namespace WebshopService.Controllers.Admin;
 [ApiController]
 [Route("api/admin/orders")]
 [Authorize(Roles = "Admin")]
-public class OrdersController(IOrderRepository orderRepository) : ControllerBase
+public class AdminOrdersController(IOrderRepository orderRepository) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<OrderSummaryResponse>))]
+    [ProducesResponseType<IEnumerable<OrderSummaryResponse>>(StatusCodes.Status200OK, "application/json")]
     public async Task<IActionResult> GetAllOrders()
     {
         var orders = await orderRepository.GetAllOrdersAsync();
@@ -28,8 +29,8 @@ public class OrdersController(IOrderRepository orderRepository) : ControllerBase
     }
     
     [HttpGet("{id:int}")]
-    [ProducesResponseType(200, Type = typeof(OrderDetailResponse))]
-    [ProducesResponseType(404)]
+    [ProducesResponseType<OrderDetailResponse>(StatusCodes.Status200OK, "application/json")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetOrderDetails(int id)
     {
         var order = await orderRepository.GetOrderDetailsByIdAsync(id);
@@ -63,27 +64,26 @@ public class OrdersController(IOrderRepository orderRepository) : ControllerBase
         return Ok(response);
     }
 
-    public record UpdateStatusRequest(string NewStatus);
-
     [HttpPut("{id:int}/status")]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest, "application/json")]
+    [ProducesResponseType<Error>(StatusCodes.Status404NotFound, "application/json")]
     public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateStatusRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.NewStatus))
         {
-            return BadRequest("Status mag niet leeg zijn.");
+            return BadRequest(new Error("Status mag niet leeg zijn.", "IWS400"));
         }
         
         try
         {
             await orderRepository.UpdateOrderStatusAsync(id, request.NewStatus);
+            
             return NoContent();
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException exception)
         {
-            return NotFound();
+            return NotFound(new Error(exception.Message, "IWS404"));
         }
         catch (Exception)
         {

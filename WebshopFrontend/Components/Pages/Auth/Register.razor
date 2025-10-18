@@ -1,0 +1,43 @@
+@page "/register"
+@inject NavigationManager NavigationManager
+
+<PageTitle>Registreren</PageTitle>
+
+<div class="card shadow-lg p-4 mx-auto my-5" style="max-width: 450px;">
+    <h3 class="card-title text-center">Nieuwe Account</h3>
+    <hr />
+
+    <EditForm Model="@registerRequest" OnValidSubmit="HandleRegistration">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="alert alert-warning p-2" />
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <div class="mb-3">
+            <label for="email" class="form-label">E-mail</label>
+            <InputText id="email" class="form-control" @bind-Value="registerRequest.Email" />
+            <ValidationMessage For="() => registerRequest.Email" />
+        </div>
+        
+        <div class="mb-3">
+            <label for="password" class="form-label">Wachtwoord</label>
+            <InputText id="password" type="password" class="form-control" @bind-Value="registerRequest.Password" />
+            <ValidationMessage For="() => registerRequest.Password" />
+        </div>
+        
+        <div class="mb-4">
+            <label for="confirm" class="form-label">Bevestig Wachtwoord</label>
+            <InputText id="confirm" type="password" class="form-control" @bind-Value="registerRequest.ConfirmPassword" />
+            <ValidationMessage For="() => registerRequest.ConfirmPassword" />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 fw-bold">Account Aanmaken</button>
+    </EditForm>
+    
+    <p class="text-center mt-3">
+        Heb je al een account? <a href="/login">Log hier in.</a>
+    </p>
+</div>

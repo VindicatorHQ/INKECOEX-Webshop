@@ -18,8 +18,8 @@ public class OrdersController(IOrderRepository orderRepository) : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(201, Type = typeof(int))]
-    [ProducesResponseType(400)]
+    [ProducesResponseType<int>(StatusCodes.Status201Created, "application/json")]
+    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest, "application/json")]
     public async Task<IActionResult> PlaceOrder([FromBody] CheckoutRequest request)
     {
         if (!ModelState.IsValid)
@@ -46,7 +46,7 @@ public class OrdersController(IOrderRepository orderRepository) : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new Error(ex.Message, "IWS400"));
         }
         catch (Exception)
         {
@@ -55,7 +55,7 @@ public class OrdersController(IOrderRepository orderRepository) : ControllerBase
     }
     
     [HttpGet]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<OrderSummaryResponse>))]
+    [ProducesResponseType<IEnumerable<OrderSummaryResponse>>(StatusCodes.Status200OK, "application/json")]
     public async Task<IActionResult> GetMyOrders()
     {
         var userId = GetUserId();
@@ -73,8 +73,8 @@ public class OrdersController(IOrderRepository orderRepository) : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    [ProducesResponseType(200, Type = typeof(OrderDetailResponse))]
-    [ProducesResponseType(404)]
+    [ProducesResponseType<OrderDetailResponse>(StatusCodes.Status200OK, "application/json")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetOrderDetails(int id)
     {
         var userId = GetUserId();

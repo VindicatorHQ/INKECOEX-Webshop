@@ -11,6 +11,7 @@ namespace WebshopFrontend.Agents.Implementation;
 public class ShoppingCartAgent(AgentUrl<ShoppingCartAgent> agentUrl, ShoppingCartService cartService, ISessionStorageService sessionStorage, NavigationManager NavigationManager) : IShoppingCartAgent
 {
     private readonly string _baseUrl = agentUrl.Url;
+    private readonly SessionStorage _sessionStorage = new(sessionStorage);
 
     private async Task<IFlurlRequest> GetAuthorizedRequest(string path)
     {
@@ -25,7 +26,7 @@ public class ShoppingCartAgent(AgentUrl<ShoppingCartAgent> agentUrl, ShoppingCar
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest("api/carts");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,"api/carts");
             
             var cart = await authRequest.GetJsonAsync<ShoppingCartResponse>();
             
@@ -52,7 +53,7 @@ public class ShoppingCartAgent(AgentUrl<ShoppingCartAgent> agentUrl, ShoppingCar
         {
             var request = new { ProductId = productId, Quantity = quantity };
             
-            var authRequest = await GetAuthorizedRequest("api/carts/items");
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,"api/carts/items");
             
             var updatedCart = await authRequest
                 .PostJsonAsync(request)
@@ -77,9 +78,10 @@ public class ShoppingCartAgent(AgentUrl<ShoppingCartAgent> agentUrl, ShoppingCar
     {
         try
         {
-            var authRequest = await GetAuthorizedRequest($"api/carts/items/{productId}"); 
+            var authRequest = await _sessionStorage.GetAuthorizedRequest(_baseUrl,"api/carts/items/"); 
         
             return await authRequest
+                .AppendPathSegment(productId)
                 .DeleteAsync()
                 .ReceiveJson<ShoppingCartResponse>();
         }

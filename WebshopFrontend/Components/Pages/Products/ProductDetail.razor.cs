@@ -13,7 +13,7 @@ public partial class ProductDetail(IProductAgent productAgent, IShoppingCartAgen
 
     protected override async Task OnInitializedAsync()
     {
-        product = await productAgent.GetByIdAsync(ProductId);
+        product = await productAgent.GetProductByIdAsync(ProductId);
         
         if (product == null)
         {

@@ -1,8 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 
-<div class="top-row ps-3 navbar navbar-dark">
+<div class="ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">WebshopFrontend</a>
+        <a class="navbar-brand" href="">Hero Software</a>
     </div>
 </div>
 
@@ -21,6 +21,12 @@
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Producten
             </NavLink>
         </div>
+        
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="categories">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Categorieën
+            </NavLink>
+        </div>
 
         <AuthorizeView>
             <Authorized>
@@ -36,13 +42,19 @@
             <Authorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="admin/products">
-                        <span class="bi bi-box-seam" aria-hidden="true"></span> Admin Producten
+                        <span class="bi bi-box-seam" aria-hidden="true"></span> Producten Beheren
                     </NavLink>
                 </div>
                 
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="admin/orders">
-                        <span class="bi bi-truck" aria-hidden="true"></span> Admin Orders
+                        <span class="bi bi-truck" aria-hidden="true"></span> Orders Beheren
+                    </NavLink>
+                </div>
+                
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="admin/categories">
+                        <span class="bi bi-truck" aria-hidden="true"></span> Categorieën Beheren
                     </NavLink>
                 </div>
             </Authorized>
