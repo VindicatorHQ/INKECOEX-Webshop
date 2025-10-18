@@ -82,13 +82,18 @@ await policy.ExecuteAsync(async () =>
         var services = scope.ServiceProvider;
         
         var context = services.GetRequiredService<WebshopDbContext>();
+        
         var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var productRepository = services.GetRequiredService<IProductRepository>();
+        var categoryRepository = services.GetRequiredService<ICategoryRepository>();
 
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync(); 
 
-        await DbInitializer.InitializeAsync(context, userManager, roleManager);
+        var initializer = new DbInitializer(userManager, roleManager, productRepository, categoryRepository);
+        
+        await initializer.InitializeAsync();
     }
 });
 

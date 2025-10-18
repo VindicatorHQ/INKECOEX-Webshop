@@ -1,79 +1,166 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using WebshopService.Constants;
 using WebshopService.Models;
+using WebshopService.Repositories.Interface;
 
 namespace WebshopService.Data;
 
-public static class DbInitializer
+public class DbInitializer(
+    UserManager<IdentityUser> userManager,
+    RoleManager<IdentityRole> roleManager,
+    IProductRepository productRepository,
+    ICategoryRepository categoryRepository)
 {
-    public static async Task InitializeAsync(
-        WebshopDbContext context, 
-        UserManager<IdentityUser> userManager, 
-        RoleManager<IdentityRole> roleManager)
+
+    public async Task InitializeAsync()
     {
-        await context.Database.MigrateAsync(); 
+        await EnsureRolesExistAsync();
 
-        await SeedRolesAsync(roleManager);
+        await EnsureUsersExistAsync();
 
-        await SeedAdminUserAsync(userManager);
-        
-        await SeedProductsAndCategoriesAsync(context);
+        await SeedCategoriesAsync();
+
+        await SeedProductsAsync();
     }
 
-    private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+    private async Task EnsureRolesExistAsync()
     {
-        string[] roleNames = [Roles.Admin, Roles.Consumer];
+        string[] roleNames = { "Admin", "Consumer" };
 
         foreach (var roleName in roleNames)
         {
-            if (await roleManager.FindByNameAsync(roleName) == null)
+            if (!await roleManager.RoleExistsAsync(roleName))
             {
                 await roleManager.CreateAsync(new IdentityRole(roleName));
             }
         }
     }
 
-    private static async Task SeedAdminUserAsync(UserManager<IdentityUser> userManager)
+    private async Task EnsureUsersExistAsync()
     {
-        if (await userManager.FindByNameAsync("admin@webshop.nl") == null)
+        var adminEmail = "admin@webshop.nl";
+        if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
             var adminUser = new IdentityUser
             {
-                UserName = "admin@webshop.nl",
-                Email = "admin@webshop.nl",
-                EmailConfirmed = true 
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true
             };
 
-            var result = await userManager.CreateAsync(adminUser, "SecureAdmin123!");
-
+            var result = await userManager.CreateAsync(adminUser, "AdminWachtwoord1!");
+            
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(adminUser, Roles.Admin);
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+        }
+
+        var customerEmail = "customer@webshop.nl";
+        if (await userManager.FindByEmailAsync(customerEmail) == null)
+        {
+            var customerUser = new IdentityUser
+            {
+                UserName = customerEmail,
+                Email = customerEmail,
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(customerUser, "CustomerWachtwoord1!");
+            
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(customerUser, "Consumer");
             }
         }
     }
 
-    private static async Task SeedProductsAndCategoriesAsync(WebshopDbContext context)
+    private async Task SeedCategoriesAsync()
     {
-        if (!context.Products.Any())
+        if ((await categoryRepository.GetAllAsync()).Any())
         {
-            var electronics = new Category { Name = "Electronics" };
-            var books = new Category { Name = "Books" };
-            
-            context.Categories.AddRange(electronics, books);
+            return;
+        }
 
-            var product1 = new Product { Name = "Laptop X1", Description = "High-end laptop", Price = 1200.00M, StockQuantity = 15 };
-            var product2 = new Product { Name = "Fantasy Roman", Description = "Epic fantasy book", Price = 19.95M, StockQuantity = 50 };
+        var categories = new List<Category>
+        {
+            new Category { Name = "Besturingssystemen", Slug = "os" },
+            new Category { Name = "Ontwikkeling", Slug = "development" },
+            new Category { Name = "Beveiliging & VPN", Slug = "security" },
+            new Category { Name = "Productiviteit", Slug = "productivity" },
+            new Category { Name = "Gelimiteerde Games", Slug = "games" }
+        };
 
-            context.Products.AddRange(product1, product2);
-            
-            context.ProductCategories.AddRange(
-                new ProductCategory { Product = product1, Category = electronics },
-                new ProductCategory { Product = product2, Category = books }
-            );
+        foreach (var cat in categories)
+        {
+            await categoryRepository.AddAsync(cat);
+        }
+    }
 
-            await context.SaveChangesAsync();
+    private async Task SeedProductsAsync()
+    {
+        if ((await productRepository.GetAllAsync()).Any())
+        {
+            return;
+        }
+
+        var osCategory = (await categoryRepository.GetBySlugAsync("os")).Id;
+        var devCategory = (await categoryRepository.GetBySlugAsync("development")).Id;
+        var secCategory = (await categoryRepository.GetBySlugAsync("security")).Id;
+        var gameCategory = (await categoryRepository.GetBySlugAsync("games")).Id;
+
+        var products = new List<Product>
+        {
+            new Product
+            {
+                Name = "Linux Pro OS Licentie",
+                Description = "Een stabiele, geoptimaliseerde Linux distributie voor professionals en overstappers.",
+                Price = 49.99m,
+                StockQuantity = 100,
+                ProductCategories = new List<ProductCategory>
+                {
+                    new ProductCategory { CategoryId = osCategory }
+                }
+            },
+            new Product
+            {
+                Name = "Ultimate Secure VPN",
+                Description = "Premium VPN-dienst met nul-log beleid en 50+ locaties. Perfect voor privacy.",
+                Price = 7.99m,
+                StockQuantity = 500,
+                ProductCategories = new List<ProductCategory>
+                {
+                    new ProductCategory { CategoryId = secCategory }
+                }
+            },
+            new Product
+            {
+                Name = "DevTools Suite 2024",
+                Description = "All-in-one pakket voor webontwikkelaars: IDE, database tools en deployment scripts.",
+                Price = 199.00m,
+                StockQuantity = 50,
+                ProductCategories = new List<ProductCategory>
+                {
+                    new ProductCategory { CategoryId = devCategory }
+                }
+            },
+            new Product
+            {
+                Name = "Cyberpunk Dreams (Limited Edition)",
+                Description = "Gelimiteerde licentie voor een unieke indie-game met hoge user reviews.",
+                Price = 34.50m,
+                StockQuantity = 25,
+                ProductCategories = new List<ProductCategory>
+                {
+                    new ProductCategory { CategoryId = gameCategory }
+                }
+            }
+        };
+
+        foreach (var product in products)
+        {
+            await productRepository.CreateAsync(product);
         }
     }
 }

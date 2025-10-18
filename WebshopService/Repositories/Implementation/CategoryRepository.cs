@@ -22,7 +22,19 @@ public class CategoryRepository(WebshopDbContext context) : ICategoryRepository
         
         if (existingCategory == null)
         {
-            throw new CategoryNotFoundException($"Product with id '{id}' was not found.");
+            throw new CategoryNotFoundException($"Category with id '{id}' was not found.");
+        }
+        
+        return Task.FromResult(existingCategory);
+    }
+    
+    public Task<Category> GetBySlugAsync(string slug)
+    {
+        var existingCategory = context.Categories.FirstOrDefault(p => p.Slug == slug);
+        
+        if (existingCategory == null)
+        {
+            throw new CategoryNotFoundException($"Category with slug '{slug}' was not found.");
         }
         
         return Task.FromResult(existingCategory);
