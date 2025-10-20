@@ -5,7 +5,7 @@ namespace WebshopFrontend.Agents.Interface;
 
 public interface IProductAgent
 {
-    Task<List<ProductResponse>> GetAllProductsAsync(string? searchTerm = null);
+    Task<List<ProductResponse>> GetAllProductsAsync(string? categorySlug = null, string? searchTerm = null);
     Task<ProductResponse?> GetProductByIdAsync(int id);
 
     // Admin Routes

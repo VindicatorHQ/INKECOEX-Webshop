@@ -33,7 +33,8 @@ public partial class CategoryManagement(ICategoryAgent categoryAgent) : Componen
         editingCategory = new CategoryRequest 
         { 
             Id = category.Id,
-            Name = category.Name 
+            Name = category.Name, 
+            Slug = category.Slug
         };
         statusMessage = null;
     }

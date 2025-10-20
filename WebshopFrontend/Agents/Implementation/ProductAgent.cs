@@ -12,13 +12,18 @@ public class ProductAgent(AgentUrl<ProductAgent> agentUrl, ISessionStorageServic
     private readonly string _baseUrl = agentUrl.Url;
     private readonly SessionStorage _sessionStorage = new(sessionStorage);
     
-    public async Task<List<ProductResponse>> GetAllProductsAsync(string? searchTerm = null)
+    public async Task<List<ProductResponse>> GetAllProductsAsync(string? categorySlug = null, string? searchTerm = null)
     {
         try
         {
             var request = _baseUrl.AppendPathSegment("api/products");
             
-            if (!string.IsNullOrWhiteSpace(searchTerm))
+            if (!string.IsNullOrEmpty(categorySlug))
+            {
+                request = request.SetQueryParam("category", categorySlug);
+            }
+        
+            if (!string.IsNullOrEmpty(searchTerm))
             {
                 request = request.SetQueryParam("search", searchTerm);
             }

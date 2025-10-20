@@ -17,7 +17,8 @@ public class CategoriesController(ICategoryRepository categoryRepository) : Cont
         
         var response = categories.Select(c => new CategoryResponse { 
             Id = c.Id, 
-            Name = c.Name 
+            Name = c.Name,
+            Slug = c.Slug
         });
         
         return Ok(response);
@@ -39,6 +40,6 @@ public class CategoriesController(ICategoryRepository categoryRepository) : Cont
             return NotFound(new Error(exception.Message, "IWS404"));
         }
         
-        return Ok(new CategoryResponse { Id = category.Id, Name = category.Name });
+        return Ok(new CategoryResponse { Id = category.Id, Name = category.Name, Slug = category.Slug });
     }
 }

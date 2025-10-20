@@ -5,7 +5,7 @@ namespace WebshopService.Repositories.Interface;
 
 public interface IProductRepository
 {
-    Task<IEnumerable<Product>> GetAllAsync(string? searchTerm = null);
+    Task<IEnumerable<Product>> GetAllAsync(string? searchTerm = null, string? categorySlug = null);
     Task<Product> GetByIdAsync(int id);
     
     // Admin

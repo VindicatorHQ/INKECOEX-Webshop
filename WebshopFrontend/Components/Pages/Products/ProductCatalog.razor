@@ -1,56 +1,93 @@
 @page "/products"
-@inject NavigationManager NavigationManager
+@inherits WebshopFrontend.Components.Pages.ProductBase
 
 <PageTitle>Product Catalogus</PageTitle>
 
-<h1>Producten</h1>
+<div class="container">
+    <h1 class="display-4 mb-4">Ontdek Onze Software</h1>
 
-<div class="mb-4">
-    <div class="input-group">
-    <InputText 
-        @bind-Value="searchModel.SearchTerm" 
-        @oninput="HandleInput"
-        class="form-control" 
-        placeholder="Zoek op naam of beschrijving..." />
+    <div class="card p-3 mb-4 shadow-sm bg-body-tertiary">
+        <div class="row align-items-end">
 
-    <button type="button" class="btn btn-primary" @onclick="HandleSearch">Zoek</button>
-
-    @if (!string.IsNullOrEmpty(searchModel.SearchTerm))
-    {
-        <button type="button" class="btn btn-outline-secondary" @onclick="ClearSearch">Reset</button>
-    }
+            <div class="col-md-6 mb-3">
+                <label for="search" class="form-label fw-bold text-body-emphasis">Zoek op Naam/Beschrijving</label>
+                <InputText 
+                    id="search"
+                    @bind-Value="SearchModel.SearchTerm" 
+                    @oninput="HandleInput"
+                    class="form-control" 
+                    placeholder="Zoek licenties of tools..." />
+            </div>
+    
+            <div class="col-md-4 mb-3">
+                <label for="category" class="form-label fw-bold text-body-emphasis">Filter op Categorie</label>
+                <select id="category" 
+                        class="form-select"
+                        @onchange="e => FilterByCategory(e.Value?.ToString())">
+                    
+                    <option value="">-- Alle Categorieën --</option>
+                    
+                    @foreach (var cat in Categories)
+                    {
+                        <option value="@cat.Slug" selected="@(cat.Slug == SearchModel.CategorySlug)">
+                            @cat.Name
+                        </option>
+                    }
+                </select>
+            </div>
+    
+            <div class="col-md-2 mb-3">
+                <button class="btn btn-outline-secondary w-100" @onclick="ClearSearch" 
+                        disabled="@(string.IsNullOrEmpty(SearchModel.SearchTerm) && string.IsNullOrEmpty(SearchModel.CategorySlug))">
+                    <i class="bi bi-x-circle"></i> Reset Filters
+                </button>
+            </div>
+        </div>
     </div>
-</div>
 
-@if (isLoading)
-{
-    <p><em>Producten worden geladen...</em></p>
-}
-else if (products.Any())
-{
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Naam</th>
-            <th>Prijs</th>
-            <th>Voorraad</th>
-            <th>Categorieën</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var product in products)
-        {
-            <tr style="cursor: pointer" @onclick="@(e => NavigateToProductPage(product.Id))">
-                <td>@product.Name</td>
-                <td>€ @product.Price</td>
-                <td>@product.StockQuantity</td>
-                <td>@product.CategoryNames</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-}
-else
-{
-    <div class="alert alert-warning">Geen producten gevonden.</div>
-}
+    @if (IsLoading)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Laden...</span>
+            </div>
+            <p class="mt-2">Producten worden geladen...</p>
+        </div>
+    }
+    else if (Products.Any())
+    {
+        <p class="text-muted">Er zijn @Products.Count licenties beschikbaar.</p>
+        
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var p in Products)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title text-primary-emphasis">@p.Name</h5>
+                            <p class="card-text text-muted small">
+                                @(p.Description.Length > 100 ? p.Description.Substring(0, 100) + "..." : p.Description)
+                            </p>
+                            
+                            <div class="mt-auto pt-3 border-top">
+                                <span class="d-block fw-bold display-6 mb-2">€@p.Price.ToString("F2")</span>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-success fw-bold">Op voorraad: @p.StockQuantity</small>
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => NavigateToProductPage(p.Id)">
+                                        Bekijk Product <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center mt-5">
+            Helaas, geen producten gevonden die aan de filters voldoen. Probeer de filters te resetten.
+        </div>
+    }
+</div>

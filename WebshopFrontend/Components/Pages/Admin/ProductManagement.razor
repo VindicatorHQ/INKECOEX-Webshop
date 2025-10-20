@@ -2,7 +2,8 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @attribute [Authorize(Roles = "Admin")]
-@inject NavigationManager NavigationManager
+
+@inherits WebshopFrontend.Components.Pages.ProductBase
 
 <PageTitle>Admin Product Beheer</PageTitle>
 
@@ -12,59 +13,92 @@
             <h1>Product Beheer</h1>
             
             <button class="btn btn-success" id="create-product" @onclick="NavigateToProductCreatePage">Product Aanmaken</button>
-            
-            <div class="mb-4">
-                <div class="input-group">
+        </div>
+
+        <div class="card p-3 mb-4 shadow-sm">
+            <div class="row align-items-end">
+                
+                <div class="col-md-6 mb-3">
+                    <label for="search" class="form-label fw-bold">Zoek op Naam/Beschrijving</label>
                     <InputText 
-                        @bind-Value="searchModel.SearchTerm" 
+                        id="search"
+                        @bind-Value="SearchModel.SearchTerm" 
                         @oninput="HandleInput"
                         class="form-control" 
-                        placeholder="Zoek op naam of beschrijving..." />
-
-                    <button type="button" class="btn btn-primary" @onclick="HandleSearch">Zoek</button>
-
-                    @if (!string.IsNullOrEmpty(searchModel.SearchTerm))
-                    {
-                        <button type="button" class="btn btn-outline-secondary" @onclick="ClearSearch">Reset</button>
-                    }
+                        placeholder="Zoekterm..." />
+                </div>
+        
+                <div class="col-md-4 mb-3">
+                    <label for="category" class="form-label fw-bold">Filter op Categorie</label>
+                    <select id="category" 
+                            class="form-select"
+                            @onchange="e => FilterByCategory(e.Value?.ToString())">
+                        
+                        <option value="">-- Alle Categorieën --</option>
+                        
+                        @foreach (var cat in Categories)
+                        {
+                            <option value="@cat.Slug" selected="@(cat.Slug == SearchModel.CategorySlug)">
+                                @cat.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+        
+                <div class="col-md-2 mb-3">
+                    <button class="btn btn-outline-secondary w-100" @onclick="ClearSearch" 
+                            disabled="@(string.IsNullOrEmpty(SearchModel.SearchTerm) && string.IsNullOrEmpty(SearchModel.CategorySlug))">
+                        <i class="bi bi-x-circle"></i> Reset Filters
+                    </button>
                 </div>
             </div>
         </div>
-
-        <p class="text-muted">Overzicht van alle producten.</p>
+        
+        <p class="text-muted">Overzicht van alle producten (@Products.Count).</p>
         <hr />
         
-        @if (products.Any())
+        @if (IsLoading)
         {
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Naam</th>
-                    <th>Voorraad</th>
-                    <th>Acties</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var p in products)
-                {
-                    <tr>
-                        <td>@p.Id</td>
-                        <td>@p.Name</td>
-                        <td>@p.StockQuantity</td>
-                        <td>
-                            <button class="btn btn-sm btn-warning me-2" id="edit-product" @onclick="() => NavigateToProductEditPage(p.Id)">Bewerken</button>
-                            
-                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteProduct(p.Id)">Verwijder</button>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Laden...</span>
+                </div>
+                <p class="mt-2">Producten worden geladen...</p>
+            </div>
         }
-        else if (!isLoading)
+        else if (Products.Any())
         {
-            <div class="alert alert-info">Geen producten beschikbaar om te beheren.</div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var p in Products)
+                {
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title text-primary-emphasis">@p.Name</h5>
+                                <p class="card-text text-muted small">
+                                    @(p.Description.Length > 100 ? p.Description[..100] + "..." : p.Description)
+                                </p>
+                            
+                                <div class="mt-auto pt-3 border-top">
+                                    <span class="d-block fw-bold display-6 mb-2">€@p.Price.ToString("F2")</span>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-success fw-bold">Op voorraad: @p.StockQuantity</small>
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => NavigateToProductPage(p.Id)">
+                                            Bekijk Product <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning me-2" id="edit-product" @onclick="() => NavigateToProductEditPage(p.Id)">Bewerken</button>
+                                        <button class="btn btn-sm btn-danger" id="delete-product" @onclick="() => DeleteProduct(p.Id)">Verwijder</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">Geen producten beschikbaar die voldoen aan de huidige filters.</div>
         }
 
         @if (!string.IsNullOrEmpty(ErrorMessage))

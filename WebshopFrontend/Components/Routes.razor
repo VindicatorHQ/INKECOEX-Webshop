@@ -1,5 +1,6 @@
 ﻿@using WebshopFrontend.Components.Layout
 @using Microsoft.AspNetCore.Components.Authorization
+@using WebshopFrontend.Components.Pages
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(Program).Assembly">
@@ -14,9 +15,8 @@
         </Found>
         
         <NotFound>
-            <PageTitle>Niet gevonden</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">Sorry, er is hier niets op dit adres.</p>
+                <NotFoundPage />
             </LayoutView>
         </NotFound>
         

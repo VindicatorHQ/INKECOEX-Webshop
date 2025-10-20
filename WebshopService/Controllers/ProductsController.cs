@@ -11,9 +11,12 @@ public class ProductsController(IProductRepository productRepository) : Controll
 {
     [HttpGet]
     [ProducesResponseType<IEnumerable<ProductResponse>>(StatusCodes.Status200OK, "application/json")]
-    public async Task<IActionResult> GetAllProducts([FromQuery(Name = "search")] string? searchTerm)
+    public async Task<IActionResult> GetProducts([FromQuery] string? category, [FromQuery] string? search) 
     {
-        var products = await productRepository.GetAllAsync(searchTerm);
+        var products = await productRepository.GetAllAsync(
+            searchTerm: search, 
+            categorySlug: category
+        );
         
         var response = products.Select(product => new ProductResponse 
         {

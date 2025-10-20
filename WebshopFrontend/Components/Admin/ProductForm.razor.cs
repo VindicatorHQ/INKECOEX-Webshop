@@ -21,7 +21,7 @@ public partial class ProductForm(ICategoryAgent categoryAgent) : ComponentBase
     
     private void ToggleCategory(int categoryId)
     {
-        if (!ProductRequest.CategoryIds.Remove(categoryId))
+        if (!ProductRequest.CategoryIds.Contains(categoryId))
         {
             ProductRequest.CategoryIds.Add(categoryId);
         }

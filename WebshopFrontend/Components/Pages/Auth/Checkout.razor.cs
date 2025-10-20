@@ -23,7 +23,7 @@ public partial class Checkout(IOrderAgent orderAgent, ShoppingCartService cartSe
         {
             cartService.SetCart(new ShoppingCartResponse());
             
-            NavigationManager.NavigateTo($"/order/confirmation/{orderId.Value}");
+            NavigationManager.NavigateTo($"/order/{orderId.Value}");
         }
         else
         {

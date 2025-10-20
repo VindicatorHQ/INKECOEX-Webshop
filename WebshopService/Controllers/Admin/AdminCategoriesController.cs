@@ -26,7 +26,8 @@ public class AdminCategoriesController(ICategoryRepository categoryRepository) :
         
         var category = new Category
         {
-            Name = request.Name
+            Name = request.Name,
+            Slug = request.Slug
         };
         
         await categoryRepository.AddAsync(category);
@@ -34,7 +35,8 @@ public class AdminCategoriesController(ICategoryRepository categoryRepository) :
         var response = new CategoryResponse
         {
             Id = category.Id, 
-            Name = category.Name
+            Name = category.Name,
+            Slug = category.Slug
         };
         
         return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, response);
@@ -61,8 +63,7 @@ public class AdminCategoriesController(ICategoryRepository categoryRepository) :
         {
             return NotFound(new Error(exception.Message, "IWS404"));
         }
-        
-        existingCategory.Name = request.Name;
+
         await categoryRepository.UpdateAsync(existingCategory, request);
         
         return NoContent();

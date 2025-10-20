@@ -9,23 +9,32 @@ namespace WebshopService.Repositories.Implementation;
 
 public class ProductRepository(WebshopDbContext context) : IProductRepository
 {
-    public async Task<IEnumerable<Product>> GetAllAsync(string? searchTerm = null)
+    public async Task<IEnumerable<Product>> GetAllAsync(string? searchTerm = null, string? categorySlug = null)
     {
         var query = context.Products
             .Include(p => p.ProductCategories)
-            .ThenInclude(pc => pc.Category);
+            .ThenInclude(pc => pc.Category)
+            .AsQueryable();
 
-        if (string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrWhiteSpace(categorySlug))
         {
-            return await query.ToListAsync();
-        }
-
-        var lowerCaseTerm = searchTerm.Trim().ToLower();
+            var lowerCaseSlug = categorySlug.Trim().ToLower();
         
-        return await query.Where(p => 
-            p.Name.ToLower().Contains(lowerCaseTerm) || 
-            p.Description.ToLower().Contains(lowerCaseTerm))
-        .ToListAsync();
+            query = query.Where(p => 
+                p.ProductCategories.Any(pc => 
+                    pc.Category.Slug.ToLower() == lowerCaseSlug));
+        }
+    
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var lowerCaseTerm = searchTerm.Trim().ToLower();
+        
+            query = query.Where(p => 
+                p.Name.ToLower().Contains(lowerCaseTerm) || 
+                p.Description.ToLower().Contains(lowerCaseTerm));
+        }
+        
+        return await query.ToListAsync();
     }
 
     public Task<Product> GetByIdAsync(int id)
@@ -52,10 +61,36 @@ public class ProductRepository(WebshopDbContext context) : IProductRepository
         return product;
     }
 
-    public async Task UpdateAsync(Product existingProduct, ProductRequest product)
+    public async Task UpdateAsync(Product existingProduct, ProductRequest productRequest)
     {
-        context.Entry(existingProduct).CurrentValues.SetValues(product);
-        
+        context.Entry(existingProduct).CurrentValues.SetValues(productRequest);
+
+        var relationshipsToRemove = existingProduct.ProductCategories
+            .Where(pc => !productRequest.CategoryIds.Contains(pc.CategoryId))
+            .ToList();
+
+        foreach (var pc in relationshipsToRemove)
+        {
+            existingProduct.ProductCategories.Remove(pc);
+        }
+
+        var existingCategoryIds = existingProduct.ProductCategories
+            .Select(pc => pc.CategoryId)
+            .ToHashSet();
+
+        var categoryIdsToAdd = productRequest.CategoryIds
+            .Where(id => !existingCategoryIds.Contains(id))
+            .ToList();
+    
+        foreach (var categoryId in categoryIdsToAdd)
+        {
+            existingProduct.ProductCategories.Add(new ProductCategory 
+            { 
+                ProductId = existingProduct.Id,
+                CategoryId = categoryId
+            });
+        }
+
         await context.SaveChangesAsync();
     }
 
