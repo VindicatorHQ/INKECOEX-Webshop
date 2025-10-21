@@ -20,7 +20,7 @@ public abstract class ProductBase : ComponentBase, IDisposable
     protected bool IsLoading = true;
     
     [SupplyParameterFromQuery(Name = "category")]
-    public string? CategorySlugFromUrl { get; set; }
+    public string? CategorySlug { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,7 +38,7 @@ public abstract class ProductBase : ComponentBase, IDisposable
     
     protected override async Task OnParametersSetAsync()
     {
-        var normalizedSlug = CategorySlugFromUrl?.ToLowerInvariant();
+        var normalizedSlug = CategorySlug?.ToLowerInvariant();
 
         if (SearchModel.CategorySlug != normalizedSlug)
         {

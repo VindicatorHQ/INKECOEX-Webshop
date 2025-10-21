@@ -1,0 +1,20 @@
+@page "/admin/guides/create"
+@using Microsoft.AspNetCore.Authorization
+@using WebshopFrontend.Components.Admin
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Gids Aanmaken</PageTitle>
+
+<div class="container py-4">
+    <h1 class="mb-4">Nieuwe Gids Aanmaken</h1>
+
+    <div class="card p-4 shadow-sm">
+        <GuideForm 
+            GuideModel="GuideModel" 
+            OnValidSubmit="HandleCreate" 
+            ButtonText="Gids Aanmaken"
+            IsSaving="isSaving"
+            ErrorMessage="@errorMessage" />
+    </div>
+</div>

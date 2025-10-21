@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using WebshopService.Models;
 using WebshopService.Repositories.Interface;
+using WebshopService.Utils; // Nodig voor ToSlug()
 
 namespace WebshopService.Data;
 
@@ -8,7 +9,9 @@ public class DbInitializer(
     UserManager<IdentityUser> userManager,
     RoleManager<IdentityRole> roleManager,
     IProductRepository productRepository,
-    ICategoryRepository categoryRepository)
+    ICategoryRepository categoryRepository,
+    // NIEUW: Injecteer de Guide Repository
+    IGuideRepository guideRepository)
 {
 
     public async Task InitializeAsync()
@@ -20,6 +23,9 @@ public class DbInitializer(
         await SeedCategoriesAsync();
 
         await SeedProductsAsync();
+        
+        // NIEUW: Voeg de Guides toe
+        await SeedGuidesAsync();
     }
 
     private async Task EnsureRolesExistAsync()
@@ -298,6 +304,151 @@ public class DbInitializer(
         foreach (var product in products)
         {
             await productRepository.CreateAsync(product);
+        }
+    }
+
+    private async Task SeedGuidesAsync()
+    {
+        if ((await guideRepository.GetAllAsync()).Any())
+        {
+            return;
+        }
+
+        var guides = new List<Guide>();
+
+        var guide1Title = "Migreren van Windows naar Linux Pro: Een Stap-voor-Stap Gids";
+        guides.Add(new Guide
+        {
+            Title = guide1Title,
+            Slug = guide1Title.ToSlug(),
+            Content = @"
+                <h2>Welkom bij Linux Pro!</h2>
+                <p>Overstappen naar Linux kan eng lijken, maar met deze gids wordt het een fluitje van een cent.</p>
+                
+                <h3>Stap 1: Back-up maken</h3>
+                <p>Zorg ervoor dat al je belangrijke bestanden veilig zijn. Gebruik een externe harde schijf of een cloudopslagdienst.</p>
+                
+                <h3>Stap 2: De installatie USB creëren</h3>
+                <p>Download de Linux Pro ISO en gebruik een tool als Rufus of BalenaEtcher om een opstartbare USB-stick te maken.</p>
+                
+                <h3>Stap 3: De installatie</h3>
+                <p>Start je computer opnieuw op vanaf de USB-stick en volg de instructies op het scherm. Tip: kies voor een dual-boot installatie als je Windows nog wilt behouden.</p>
+                
+                <h4>Waarom overstappen?</h4>
+                <ul>
+                    <li>Superieure snelheid en stabiliteit.</li>
+                    <li>Geen licentiekosten (open source).</li>
+                    <li>Volledige controle over je systeem.</li>
+                </ul>
+            "
+        });
+
+        var guide2Title = "Verbeter je Project Workflow met Project Planner Premium";
+        guides.Add(new Guide
+        {
+            Title = guide2Title,
+            Slug = guide2Title.ToSlug(),
+            Content = @"
+                <h1>Agile Workflow Optimalisatie</h1>
+                <p>Project Planner Premium is ontworpen om teams te helpen efficiënter te werken. Hier zijn de beste tips:</p>
+                
+                <h2>Board View instellen</h2>
+                <p>Gebruik het <strong>Kanban Board</strong> om je taken te visualiseren. Maak kolommen voor 'To Do', 'In Progress', 'Testing' en 'Done'.</p>
+                
+                <h3>Tijdschattingen</h3>
+                <p>Elke taak moet een duidelijke tijdschatting hebben. De Tool gebruikt deze data om automatische rapporten te genereren over de projectvoortgang.</p>
+                
+                <ol>
+                    <li>Definieer de taak.</li>
+                    <li>Wijs een teamlid toe.</li>
+                    <li>Voer de geschatte tijd in (in uren).</li>
+                    <li>Start de taak en de ingebouwde tijdregistratie tool gaat mee.</li>
+                </ol>
+                
+                <p>Dit garandeert dat je nooit meer verrast wordt door budgetoverschrijdingen.</p>
+            "
+        });
+
+        var guide3Title = "De Essentie van Cybersecurity: Bescherming met VPN en Antivirus";
+        guides.Add(new Guide
+        {
+            Title = guide3Title,
+            Slug = guide3Title.ToSlug(),
+            Content = @"
+                <h1>Bescherm Jezelf Online</h1>
+                <p>Met de toename van cyberdreigingen is goede beveiligingssoftware essentieel.</p>
+                
+                <h2>Ultimate Secure VPN</h2>
+                <p>Onze VPN versleutelt al je internetverkeer. Dit is cruciaal wanneer je gebruik maakt van openbare Wi-Fi netwerken. Het verbergt ook je IP-adres, wat je privacy verhoogt.</p>
+
+                <h2>Malware Defender Pro</h2>
+                <p>Naast een VPN heb je lokale bescherming nodig tegen virussen en ransomware. Malware Defender Pro gebruikt AI om nieuwe dreigingen te herkennen voordat ze schade kunnen aanrichten.</p>
+                
+                <p><strong>Checklist voor Optimale Beveiliging:</strong></p>
+                <table class='table table-bordered dark-table'>
+                    <thead>
+                        <tr><th>Gebruik</th><th>Vereist</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Openbare Wi-Fi</td><td>VPN altijd AAN</td></tr>
+                        <tr><td>Nieuwe software installeren</td><td>Antivirus scan vooraf</td></tr>
+                        <tr><td>Wachtwoordbeheer</td><td>Gebruik Wachtwoord Manager Deluxe</td></tr>
+                    </tbody>
+                </table>
+            "
+        });
+        
+        var guide4Title = "Migratie van Windows 11 naar Arch Linux: De Ultieme Uitdaging";
+        guides.Add(new Guide
+        {
+            Title = guide4Title,
+            Slug = guide4Title.ToSlug(),
+            Content = @"
+                <h1>Arch Linux: De Doe-Het-Zelf Distributie</h1>
+                <p>Arch Linux is een van de krachtigste en flexibelste Linux-distributies, maar staat bekend om zijn steile leercurve. Deze gids helpt je bij de overstap vanaf Windows 11.</p>
+                
+                <h2>Wat je moet weten (Voor- en Nadelen)</h2>
+                
+                <div class='row dark-container'>
+                    <div class='col-md-6'>
+                        <h3>Voordelen (Pros)</h3>
+                        <ul>
+                            <li><strong>Rolling Release:</strong> Altijd de nieuwste software zonder grote upgrades.</li>
+                            <li><strong>Volledige Controle:</strong> Je bouwt je systeem van de grond af op, wat resulteert in een extreem lichte en snelle installatie.</li>
+                            <li><strong>AUR (Arch User Repository):</strong> Toegang tot een onofficiële, maar enorme, verzameling softwarepakketten.</li>
+                            <li><strong>Kennisopbouw:</strong> Je leert extreem veel over hoe een Linux-systeem werkt.</li>
+                        </ul>
+                    </div>
+                    <div class='col-md-6'>
+                        <h3>Nadelen (Cons)</h3>
+                        <ul>
+                            <li><strong>Steile Leercurve:</strong> Er is geen grafische installer; alles gebeurt via de commandoregel.</li>
+                            <li><strong>Onderhoud:</strong> Meer hands-on beheer vereist (geen 'set-and-forget' systeem).</li>
+                            <li><strong>Breukgevoeligheid:</strong> Door de rolling release kan een verkeerde update soms tot problemen leiden.</li>
+                            <li><strong>Hardware Support:</strong> Soms meer moeite met gespecialiseerde drivers dan bij een OS als Windows.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Basisstappen voor Arch Installatie</h2>
+                <ol>
+                    <li>Bereid de USB-stick voor en start op.</li>
+                    <li>Maak verbinding met internet (<code>wifi-menu</code> of bekabeld).</li>
+                    <li>Partitioneer de schijf (<code>fdisk</code> of <code>cfdisk</code>).</li>
+                    <li>Mount de bestandssystemen.</li>
+                    <li>Installeer de basispakketten (<code>pacstrap /mnt base linux linux-firmware</code>).</li>
+                    <li>Genereer de Fstab (<code>genfstab -U /mnt >> /mnt/etc/fstab</code>).</li>
+                    <li>Chroot in de nieuwe installatie (<code>arch-chroot /mnt</code>).</li>
+                    <li>Stel locale, tijdzone en root-wachtwoord in.</li>
+                    <li>Installeer een bootloader (bijv. GRUB).</li>
+                    <li>Installeer en configureer je gewenste Desktop Environment (DE).</li>
+                </ol>
+            "
+        });
+        
+        foreach (var guide in guides)
+        {
+            await guideRepository.AddAsync(guide);
         }
     }
 }
