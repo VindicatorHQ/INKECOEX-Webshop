@@ -24,7 +24,6 @@ public class DbInitializer(
 
         await SeedProductsAsync();
         
-        // NIEUW: Voeg de Guides toe
         await SeedGuidesAsync();
     }
 

@@ -24,22 +24,8 @@ else
         {
             <div class="alert alert-danger mt-3">@errorMessage</div>
         }
-
-        @* Sectie 1: Interface Instellingen (Theme) *@
-        <div class="card p-3 mb-4 theme-settings-card">
-            <h4>Interface Instellingen</h4>
-            <hr/>
-            <div class="d-flex align-items-center justify-content-between">
-                <span>Huidig Thema: <strong>@themeService.CurrentTheme</strong></span>
-                <button type="button" class="btn btn-secondary" @onclick="ToggleTheme">
-                    <i class="bi bi-gear"></i> Schakel Thema (@(themeService.CurrentTheme == "light" ? "Dark Mode" : "Light Mode"))
-                </button>
-            </div>
-            <small class="text-muted mt-2">Het thema wordt automatisch opgeslagen in uw browser.</small>
-        </div>
         
         <div class="row">
-            @* Sectie 2: Persoonlijke Gegevens *@
             <div class="col-md-6">
                 <div class="card p-3 mb-4">
                     <h4>Persoonlijke Gegevens</h4>
@@ -59,7 +45,6 @@ else
                 </div>
             </div>
 
-            @* Sectie 3: Adres Gegevens *@
             <div class="col-md-6">
                 <div class="card p-3 mb-4">
                     <h4>Verzendadres (Standaard voor Checkout)</h4>

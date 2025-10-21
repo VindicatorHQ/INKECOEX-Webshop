@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using WebshopFrontend.Agents;
 using WebshopFrontend.Agents.Interface;
-using WebshopFrontend.Providers;
 using WebshopFrontend.Services;
 
 namespace WebshopFrontend.Components.Layout;

@@ -37,20 +37,18 @@ public partial class GuideManagement(IGuideAgent guideAgent) : ComponentBase
         
         if (await JsRuntime.InvokeAsync<bool>("confirm", arguments))
         {
-            return;
-        }
+            var success = await guideAgent.DeleteAsync(id);
 
-        var success = await guideAgent.DeleteAsync(id);
-
-        if (success)
-        {
-            guides.RemoveAll(g => g.Id == id);
+            if (success)
+            {
+                guides.RemoveAll(g => g.Id == id);
             
-            StateHasChanged();
-        }
-        else
-        {
-            Console.WriteLine("Fout bij verwijderen.");
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("Fout bij verwijderen.");
+            }
         }
     }
 }
