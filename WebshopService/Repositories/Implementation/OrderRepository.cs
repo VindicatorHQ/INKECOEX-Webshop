@@ -63,6 +63,29 @@ public class OrderRepository(WebshopDbContext context, IShoppingCartRepository c
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
 
+            var profile = context.UserProfiles.FirstOrDefault(up => up.UserId == userId);
+
+            if (profile == null)
+            {
+                profile = new UserProfile { UserId = userId };
+                
+                context.UserProfiles.Add(profile);
+            }
+
+            var userNames = address.FullName.Split([" "], StringSplitOptions.None);
+            
+            var updatedProfile = new UserProfile
+            {
+                UserId = profile.UserId,
+                FirstName = userNames.First(),
+                LastName = userNames.Last(),
+                DefaultShippingAddressId = address.Id,
+            };
+            
+            context.Entry(profile).CurrentValues.SetValues(updatedProfile);
+
+            await context.SaveChangesAsync();
+
             return order.Id;
         }
         catch

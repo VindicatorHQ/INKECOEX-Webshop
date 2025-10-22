@@ -49,14 +49,28 @@ else
                 <div class="card p-3 mb-4">
                     <h4>Verzendadres (Standaard voor Checkout)</h4>
                     <hr/>
+                    
                     <div class="mb-3">
-                        <label for="street" class="form-label">Straat</label>
-                        <InputText id="street" class="form-control" @bind-Value="profile.Street" />
+                        <label for="fullname" class="form-label">Volledige Naam Ontvanger</label>
+                        <InputText id="fullname" class="form-control" @bind-Value="profile.FullName" />
                     </div>
+                    
+                    <div class="row">
+                        <div class="col-8 mb-3">
+                            <label for="street" class="form-label">Straat</label>
+                            <InputText id="street" class="form-control" @bind-Value="profile.Street" />
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label for="housenumber" class="form-label">Nr.</label>
+                            <InputText id="housenumber" class="form-control" @bind-Value="profile.HouseNumber" />
+                        </div>
+                    </div>
+                    
                     <div class="mb-3">
-                        <label for="postalcode" class="form-label">Postcode</label>
-                        <InputText id="postalcode" class="form-control" @bind-Value="profile.PostalCode" />
+                        <label for="zipcode" class="form-label">Postcode</label>
+                        <InputText id="zipcode" class="form-control" @bind-Value="profile.ZipCode" />
                     </div>
+                    
                     <div class="mb-3">
                         <label for="city" class="form-label">Plaats</label>
                         <InputText id="city" class="form-control" @bind-Value="profile.City" />

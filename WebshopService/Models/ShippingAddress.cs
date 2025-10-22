@@ -13,4 +13,6 @@ public class ShippingAddress
     public string City { get; set; } = string.Empty;
     public string Country { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
+    
+    public UserProfile? DefaultUserProfile { get; set; }
 }

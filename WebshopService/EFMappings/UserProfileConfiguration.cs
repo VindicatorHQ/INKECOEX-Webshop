@@ -15,5 +15,11 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
             .HasForeignKey<UserProfile>(p => p.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasOne(up => up.DefaultShippingAddress)
+            .WithOne(sa => sa.DefaultUserProfile)
+            .HasForeignKey<UserProfile>(up => up.DefaultShippingAddressId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

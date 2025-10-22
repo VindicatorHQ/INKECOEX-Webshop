@@ -8,11 +8,10 @@ public class UserProfile
     
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
-    
-    public string? Street { get; set; }
-    public string? City { get; set; }
-    public string? PostalCode { get; set; }
-    public string? Country { get; set; }
+
+    public int? DefaultShippingAddressId { get; set; } 
+
+    public ShippingAddress? DefaultShippingAddress { get; set; }
     
     public IdentityUser User { get; set; } = default!;
 }

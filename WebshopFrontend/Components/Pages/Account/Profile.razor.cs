@@ -2,11 +2,10 @@ using Microsoft.AspNetCore.Components;
 using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Requests;
 using WebshopFrontend.DTOs.Responses;
-using WebshopFrontend.Services;
 
 namespace WebshopFrontend.Components.Pages.Account;
 
-public partial class Profile(IUserAgent userAgent, IThemeService themeService) : ComponentBase, IDisposable
+public partial class Profile(IUserAgent userAgent) : ComponentBase
 {
     private UserProfileResponse? profile; 
     private bool updateSuccess;
@@ -15,8 +14,6 @@ public partial class Profile(IUserAgent userAgent, IThemeService themeService) :
     protected override async Task OnInitializedAsync()
     {
         profile = await userAgent.GetUserProfileAsync();
-        
-        themeService.OnThemeChanged += StateHasChanged; 
     }
 
     private async Task HandleUpdate()
@@ -30,9 +27,12 @@ public partial class Profile(IUserAgent userAgent, IThemeService themeService) :
             {
                 FirstName = profile.FirstName,
                 LastName = profile.LastName,
+                
+                FullName = profile.FullName,
                 Street = profile.Street,
+                HouseNumber = profile.HouseNumber,
+                ZipCode = profile.ZipCode,
                 City = profile.City,
-                PostalCode = profile.PostalCode,
                 Country = profile.Country
             };
             
@@ -47,15 +47,5 @@ public partial class Profile(IUserAgent userAgent, IThemeService themeService) :
                 errorMessage = "Opslaan mislukt. Probeer later opnieuw.";
             }
         }
-    }
-    
-    private async Task ToggleTheme()
-    {
-        await themeService.ToggleThemeAsync();
-    }
-    
-    public void Dispose()
-    {
-        themeService.OnThemeChanged -= StateHasChanged;
     }
 }

@@ -6,11 +6,29 @@ using WebshopFrontend.Services;
 
 namespace WebshopFrontend.Components.Pages.Auth;
 
-public partial class Checkout(IOrderAgent orderAgent, ShoppingCartService cartService) : ComponentBase
+public partial class Checkout(IOrderAgent orderAgent, ShoppingCartService cartService, IUserAgent userAgent) : ComponentBase
 {
     private CheckoutRequest checkoutRequest = new();
     private bool isProcessing;
     private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var profile = await userAgent.GetUserProfileAsync();
+
+        if (profile != null)
+        {
+            checkoutRequest = new CheckoutRequest
+            {
+                FullName = $"{profile.FirstName} {profile.LastName}",
+                Street = profile.Street,
+                HouseNumber = profile.HouseNumber,
+                ZipCode = profile.ZipCode,
+                City = profile.City,
+                Country = profile.Country
+            };
+        }
+    }
 
     private async Task HandleCheckout()
     {
@@ -23,7 +41,7 @@ public partial class Checkout(IOrderAgent orderAgent, ShoppingCartService cartSe
         {
             cartService.SetCart(new ShoppingCartResponse());
             
-            NavigationManager.NavigateTo($"/order/{orderId.Value}");
+            NavigationManager.NavigateTo($"/orders/{orderId.Value}");
         }
         else
         {

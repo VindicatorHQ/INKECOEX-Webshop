@@ -17,6 +17,7 @@ public class WebshopDbContext(DbContextOptions<WebshopDbContext> options) : Iden
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<UserProfile> UserProfiles { get; set; } = default!;
     public DbSet<Guide> Guides { get; set; }
+    public DbSet<ShippingAddress> ShippingAddresses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -31,5 +32,6 @@ public class WebshopDbContext(DbContextOptions<WebshopDbContext> options) : Iden
         builder.ApplyConfiguration(new ShoppingCartConfiguration());
         builder.ApplyConfiguration(new UserProfileConfiguration());
         builder.ApplyConfiguration(new GuideConfiguration());
+        builder.ApplyConfiguration(new ShippingAddressConfiguration());
     }
 }

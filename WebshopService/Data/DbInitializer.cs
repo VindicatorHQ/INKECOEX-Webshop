@@ -10,7 +10,6 @@ public class DbInitializer(
     RoleManager<IdentityRole> roleManager,
     IProductRepository productRepository,
     ICategoryRepository categoryRepository,
-    // NIEUW: Injecteer de Guide Repository
     IGuideRepository guideRepository)
 {
 

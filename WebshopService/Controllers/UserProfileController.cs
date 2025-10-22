@@ -20,18 +20,21 @@ public class UserProfileController(IUserProfileRepository profileRepository) : C
     public async Task<IActionResult> GetProfile()
     {
         var userId = GetUserId();
-        
+
         var profile = await profileRepository.GetOrCreateByUserIdAsync(userId); 
-        
+
         var response = new UserProfileResponse
         {
             Email = User.FindFirstValue(ClaimTypes.Email)!,
             FirstName = profile.FirstName,
             LastName = profile.LastName,
-            Street = profile.Street,
-            City = profile.City,
-            PostalCode = profile.PostalCode,
-            Country = profile.Country
+
+            FullName = profile.DefaultShippingAddress?.FullName,
+            Street = profile.DefaultShippingAddress?.Street,
+            HouseNumber = profile.DefaultShippingAddress?.HouseNumber,
+            ZipCode = profile.DefaultShippingAddress?.ZipCode,
+            City = profile.DefaultShippingAddress?.City,
+            Country = profile.DefaultShippingAddress?.Country
         };
 
         return Ok(response);
@@ -48,17 +51,21 @@ public class UserProfileController(IUserProfileRepository profileRepository) : C
         
         if (profile == null)
         {
-            return BadRequest(new { message = "Profiel kon niet worden gevonden of aangemaakt." });
+            return BadRequest(new { message = "Profiel kon niet worden gevonden." });
         }
 
         profile.FirstName = request.FirstName;
         profile.LastName = request.LastName;
-        profile.Street = request.Street;
-        profile.City = request.City;
-        profile.PostalCode = request.PostalCode;
-        profile.Country = request.Country;
 
-        await profileRepository.UpdateAsync(profile);
+        await profileRepository.UpdateProfileAndDefaultAddressAsync(
+            profile,
+            request.FullName,
+            request.Street,
+            request.HouseNumber,
+            request.ZipCode,
+            request.City,
+            request.Country
+        );
 
         return Ok();
     }

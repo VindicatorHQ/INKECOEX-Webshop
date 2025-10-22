@@ -6,5 +6,13 @@ public interface IUserProfileRepository
 {
     Task<UserProfile?> GetByUserIdAsync(string userId);
     Task<UserProfile> GetOrCreateByUserIdAsync(string userId);
-    Task UpdateAsync(UserProfile profile);
+    Task UpdateProfileAndDefaultAddressAsync(
+        UserProfile profile, 
+        string? fullName, 
+        string? street, 
+        string? houseNumber, 
+        string? zipCode, 
+        string? city, 
+        string? country
+    );
 }
