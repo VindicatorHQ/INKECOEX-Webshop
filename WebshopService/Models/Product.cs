@@ -11,4 +11,5 @@ public class Product
     public ICollection<OrderItem> OrderDetails { get; set; } = new List<OrderItem>();
     public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

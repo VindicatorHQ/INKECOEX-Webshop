@@ -35,6 +35,7 @@ builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<IShoppingCartRepository, ShoppingCartRepository>();
 builder.Services.AddTransient<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddTransient<IGuideRepository, GuideRepository>();
+builder.Services.AddTransient<IReviewRepository, ReviewRepository>();
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<WebshopDbContext>()
@@ -90,6 +91,7 @@ await policy.ExecuteAsync(async () =>
         var productRepository = services.GetRequiredService<IProductRepository>();
         var categoryRepository = services.GetRequiredService<ICategoryRepository>();
         var guideRepository = services.GetRequiredService<IGuideRepository>();
+        var reviewRepository = services.GetRequiredService<IReviewRepository>();
 
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync(); 

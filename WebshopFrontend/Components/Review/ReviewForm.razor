@@ -1,0 +1,38 @@
+<EditForm Model="@Request" OnValidSubmit="HandleValidSubmit" FormName="reviewForm">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label for="reviewerName" class="form-label fw-bold">Uw Naam (Optioneel)</label>
+        <InputText id="reviewerName" @bind-Value="Request.ReviewerName" class="form-control" placeholder="Laat leeg voor 'Anoniem'" />
+        <ValidationMessage For="@(() => Request.ReviewerName)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Beoordeling (Sterren)</label>
+        <div class="rating-selector d-flex gap-2">
+            @for (int i = 1; i <= 5; i++)
+            {
+                var ratingValue = i;
+                
+                <span class="star-icon @(i <= Request.Rating ? "text-warning" : "text-secondary")"
+                      @onclick="() => SetRating(ratingValue)" style="cursor: pointer; font-size: 1.5rem;">
+                    <i class="bi bi-star-fill"></i>
+                </span>
+            }
+        </div>
+        <ValidationMessage For="@(() => Request.Rating)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="comment" class="form-label fw-bold">Uw Commentaar</label>
+        <InputTextArea id="comment" @bind-Value="Request.Comment" class="form-control" rows="4" placeholder="Deel uw ervaring..." />
+        <ValidationMessage For="@(() => Request.Comment)" />
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-secondary" @onclick="@(e => OnCancel.InvokeAsync())">Annuleren</button>
+        <button type="submit" class="btn btn-success">
+            @(ReviewToEdit != null ? "Opslaan" : "Plaats Review")
+        </button>
+    </div>
+</EditForm>

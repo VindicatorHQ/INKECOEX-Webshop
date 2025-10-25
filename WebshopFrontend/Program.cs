@@ -54,6 +54,9 @@ builder.Services.AddTransient<IUserAgent, UserAgent>();
 builder.Services.AddSingleton(new AgentUrl<GuideAgent>(agentUrl));
 builder.Services.AddTransient<IGuideAgent, GuideAgent>();
 
+builder.Services.AddSingleton(new AgentUrl<ReviewAgent>(agentUrl));
+builder.Services.AddTransient<IReviewAgent, ReviewAgent>();
+
 builder.Services.AddSingleton<IDebounceService, DebounceService>();
 builder.Services.AddScoped<IThemeService, ThemeService>();
 builder.Services.AddSingleton<ShoppingCartService>();

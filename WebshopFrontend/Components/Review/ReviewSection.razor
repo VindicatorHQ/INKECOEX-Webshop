@@ -1,0 +1,71 @@
+@using WebshopFrontend.Components.Modals
+<div class="review-section mt-5 p-4 border rounded shadow-sm bg-light">
+    <h2 class="h4 mb-4 text-primary">Beoordelingen (@Reviews.Count)</h2>
+
+    @if (IsLoading)
+    {
+        <p class="text-center text-muted"><em>Beoordelingen laden...</em></p>
+    }
+    else
+    {
+        <div class="d-flex justify-content-end mb-4">
+            <button class="btn btn-primary" @onclick="() => IsCreating = true">
+                <i class="bi bi-star"></i> Plaats een Beoordeling
+            </button>
+        </div>
+
+        @if (IsCreating)
+        {
+            <div class="mb-5 p-4 border rounded bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Nieuwe Beoordeling</h5>
+                    <button class="btn-close" @onclick="() => IsCreating = false"></button>
+                </div>
+                <ReviewForm OnSubmit="HandleReviewCreate" OnCancel="() => IsCreating = false" />
+            </div>
+        }
+        
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            <div class="alert @(IsError ? "alert-danger" : "alert-success")">@Message</div>
+        }
+
+        @if (Reviews.Any())
+        {
+            <div class="reviews-list">
+                @foreach (var review in Reviews.OrderByDescending(r => r.CreatedAt))
+                {
+                    <div class="mb-4 pb-4 border-bottom">
+                        @if (IsEditing && EditingReviewId == review.Id)
+                        {
+                            <ReviewForm ReviewToEdit="@review" OnSubmit="HandleReviewUpdate" OnCancel="() => ResetEditState()" />
+                        }
+                        else
+                        {
+                            <ReviewDisplay 
+                                Review="@review" 
+                                CurrentUserId="@CurrentUserId"
+                                IsAdmin="@IsAdmin"
+                                OnEdit="HandleEditRequest"
+                                OnDelete="HandleDeleteRequest"
+                            />
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info text-center">Er zijn nog geen beoordelingen. Wees de eerste!</div>
+        }
+    }
+</div>
+
+<ConfirmationModal 
+    IsVisible="ShowModal" 
+    Message="@ModalMessage"
+    ConfirmText="Verwijderen"
+    ConfirmButtonClass="btn-danger"
+    ShowWarning="true"
+    OnResult="OnModalResult" 
+/>
