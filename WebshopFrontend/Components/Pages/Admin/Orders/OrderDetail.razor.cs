@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Responses;
 
-namespace WebshopFrontend.Components.Pages.Admin;
+namespace WebshopFrontend.Components.Pages.Admin.Orders;
 
 public partial class OrderDetail(IOrderAgent orderAgent) : ComponentBase
 {

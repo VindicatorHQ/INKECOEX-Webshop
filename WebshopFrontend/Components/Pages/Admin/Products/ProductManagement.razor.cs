@@ -1,4 +1,4 @@
-namespace WebshopFrontend.Components.Pages.Admin;
+namespace WebshopFrontend.Components.Pages.Admin.Products;
 
 public partial class ProductManagement : ProductBase
 {

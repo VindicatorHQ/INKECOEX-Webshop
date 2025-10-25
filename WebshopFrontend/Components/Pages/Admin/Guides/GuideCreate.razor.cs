@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Requests;
 
-namespace WebshopFrontend.Components.Pages.Admin;
+namespace WebshopFrontend.Components.Pages.Admin.Guides;
 
 public partial class GuideCreate(IGuideAgent guideAgent) : ComponentBase
 {

@@ -3,7 +3,7 @@ using WebshopFrontend.Agents.Interface;
 using WebshopFrontend.DTOs.Requests;
 using WebshopFrontend.DTOs.Responses;
 
-namespace WebshopFrontend.Components.Pages.Admin;
+namespace WebshopFrontend.Components.Pages.Admin.Category;
 
 public partial class CategoryManagement(ICategoryAgent categoryAgent) : ComponentBase
 {

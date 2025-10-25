@@ -15,6 +15,8 @@ public abstract class ProductBase : ComponentBase, IDisposable
 
     private readonly object _debounceKey = new();
     protected SearchModel SearchModel = new();
+    
+    protected int SortOrder { get; set; } = 0; 
     protected List<ProductResponse> Products = [];
     protected List<CategoryResponse> Categories = [];
     protected bool IsLoading = true;
@@ -60,6 +62,8 @@ public abstract class ProductBase : ComponentBase, IDisposable
             searchTerm: SearchModel.SearchTerm
         );
         
+        ApplySort();
+        
         StateHasChanged(); 
     }
 
@@ -92,6 +96,43 @@ public abstract class ProductBase : ComponentBase, IDisposable
         SearchModel.CategorySlug = slug;
     
         await LoadProducts();
+    }
+    
+    protected void TogglePriceSort()
+    {
+        SortOrder = SortOrder switch
+        {
+            1 => -1,
+            -1 => 0,
+            _ => 1
+        };
+
+        ApplySort();
+        
+        StateHasChanged();
+    }
+
+    protected void ApplySort()
+    {
+        if (SortOrder == 0)
+        {
+            return; 
+        }
+
+        if (SortOrder == 1)
+        {
+            Products = Products
+                .OrderByDescending(p => p.Price)
+                .ThenByDescending(p => p.Id)
+                .ToList();
+        }
+        else if (SortOrder == -1)
+        {
+            Products = Products
+                .OrderBy(p => p.Price)
+                .ThenByDescending(p => p.Id)
+                .ToList();
+        }
     }
 
     protected void NavigateToProductPage(int id)
