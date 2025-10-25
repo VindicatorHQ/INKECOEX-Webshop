@@ -145,7 +145,7 @@ public partial class ReviewSection(IReviewAgent reviewAgent) : ComponentBase
         IsError = false;
         Message = null;
 
-        var confirmed = await ShowConfirmation($"Weet u zeker dat u deze beoordeling wilt verwijderen?");
+        var confirmed = await ShowConfirmation("Weet u zeker dat u deze beoordeling wilt verwijderen?");
         
         if (confirmed)
         {

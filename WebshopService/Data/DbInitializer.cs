@@ -1,32 +1,42 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using WebshopService.Models;
 using WebshopService.Repositories.Interface;
-using WebshopService.Utils; // Nodig voor ToSlug()
+using WebshopService.Utils;
+using WebshopService.Constants;
 
 namespace WebshopService.Data;
 
 public class DbInitializer(
     UserManager<IdentityUser> userManager,
     RoleManager<IdentityRole> roleManager,
+    WebshopDbContext dbContext,
     IProductRepository productRepository,
     ICategoryRepository categoryRepository,
     IGuideRepository guideRepository,
-    IReviewRepository reviewRepository)
+    IReviewRepository reviewRepository,
+    IOrderRepository orderRepository) 
 {
+    private string AdminUserId = string.Empty;
+    private string CustomerUserId = string.Empty;
 
     public async Task InitializeAsync()
     {
         await EnsureRolesExistAsync();
 
-        await EnsureUsersExistAsync();
+        await EnsureUsersExistAsync(); 
+        
+        AdminUserId = (await userManager.FindByEmailAsync("admin@webshop.nl"))?.Id ?? throw new InvalidOperationException("Admin user not found.");
+        CustomerUserId = (await userManager.FindByEmailAsync("customer@webshop.nl"))?.Id ?? throw new InvalidOperationException("Customer user not found.");
 
         await SeedCategoriesAsync();
 
         await SeedProductsAsync();
         
+        await SeedOrdersAsync(); 
+        
         await SeedGuidesAsync();
 
-        // Nieuwe stap: Reviews toevoegen
         await SeedReviewsAsync();
     }
 
@@ -296,7 +306,7 @@ public class DbInitializer(
             },
             new Product
             {
-                Name = "Fantasy RPG: The Lost Realm", // Product dat GEEN reviews krijgt
+                Name = "Fantasy RPG: The Lost Realm",
                 Description = "Collector's Edition van een epische fantasy RPG.",
                 Price = 49.99m, StockQuantity = 35,
                 ProductCategories = new List<ProductCategory> { new ProductCategory { CategoryId = gameCategory } }
@@ -307,6 +317,156 @@ public class DbInitializer(
         {
             await productRepository.CreateAsync(product);
         }
+    }
+    
+    private async Task SeedCartAndPlaceOrderAsync(string userId, ShippingAddress address, DateTime orderDate, List<(string productName, int quantity, string status)> items)
+    {
+        var cart = new ShoppingCart
+        {
+            UserId = userId,
+            CreatedDate = DateTime.UtcNow.AddMinutes(-5),
+            CartItems = new List<CartItem>()
+        };
+
+        foreach (var item in items)
+        {
+            var product = await dbContext.Products.FirstOrDefaultAsync(p => p.Name == item.productName);
+            if (product != null)
+            {
+                cart.CartItems.Add(new CartItem { ProductId = product.Id, Quantity = item.quantity });
+            }
+        }
+        
+        if (cart.CartItems.Count == 0)
+        {
+            return;
+        }
+
+        dbContext.ShoppingCarts.Add(cart);
+        await dbContext.SaveChangesAsync(); 
+        
+        var orderId = await orderRepository.PlaceOrderAsync(userId, address);
+
+        var order = await dbContext.Orders.FindAsync(orderId);
+        if (order != null)
+        {
+            order.OrderDate = orderDate;
+            order.Status = items.First().status;
+            await dbContext.SaveChangesAsync();
+        }
+    }
+
+    private async Task SeedOrdersAsync()
+    {
+        if (await dbContext.Orders.AnyAsync())
+        {
+            return;
+        }
+
+        var customerId = CustomerUserId;
+        var adminId = AdminUserId;
+        
+        var customerAddress = new ShippingAddress
+        {
+            Street = "Klantlaan", HouseNumber = "42", ZipCode = "3000 BA", City = "Rotterdam", Country = "Nederland", FullName = "Klant Klaas"
+        };
+        var adminAddress = new ShippingAddress
+        {
+            Street = "Adminstraat", HouseNumber = "1A", ZipCode = "1000 AD", City = "Amsterdam", Country = "Nederland", FullName = "Admin Gebruiker"
+        };
+
+        ShippingAddress CloneAddress(ShippingAddress source) => new()
+        {
+            Street = source.Street,
+            HouseNumber = source.HouseNumber,
+            ZipCode = source.ZipCode,
+            City = source.City,
+            Country = source.Country,
+            FullName = source.FullName
+        };
+
+        await SeedCartAndPlaceOrderAsync(
+            customerId,
+            CloneAddress(customerAddress),
+            DateTime.UtcNow.AddDays(-30).AddHours(3),
+            new List<(string, int, string)> 
+            {
+                ("Linux Pro OS Licentie", 1, OrderStatus.Delivered)
+            }
+        );
+        
+        await SeedCartAndPlaceOrderAsync(
+            customerId,
+            CloneAddress(customerAddress),
+            DateTime.UtcNow.AddDays(-25).AddHours(5),
+            new List<(string, int, string)> 
+            {
+                ("Windows Workstation 12 Pro", 1, OrderStatus.Cancelled)
+            }
+        );
+        
+        await SeedCartAndPlaceOrderAsync(
+            adminId,
+            CloneAddress(adminAddress),
+            DateTime.UtcNow.AddDays(-20).AddHours(12),
+            new List<(string, int, string)> 
+            {
+                ("DevTools Suite 2024", 2, OrderStatus.Shipped),
+                ("Ultimate Secure VPN", 10, OrderStatus.Shipped)
+            }
+        );
+        
+        await SeedCartAndPlaceOrderAsync(
+            customerId,
+            CloneAddress(customerAddress),
+            DateTime.UtcNow.AddDays(-15).AddHours(18),
+            new List<(string, int, string)> 
+            {
+                ("Linux Pro OS Licentie", 1, OrderStatus.Delivered),
+                ("Ultimate Secure VPN", 1, OrderStatus.Delivered)
+            }
+        );
+        
+        await SeedCartAndPlaceOrderAsync(
+            customerId,
+            CloneAddress(customerAddress),
+            DateTime.UtcNow.AddDays(-5).AddHours(11),
+            new List<(string, int, string)> 
+            {
+                ("Windows Workstation 12 Pro", 1, OrderStatus.Processing)
+            }
+        );
+        
+        await SeedCartAndPlaceOrderAsync(
+            adminId,
+            CloneAddress(adminAddress),
+            DateTime.UtcNow.AddDays(-2).AddHours(1),
+            new List<(string, int, string)> 
+            {
+                ("DevTools Suite 2024", 1, OrderStatus.Delivered)
+            }
+        );
+        await SeedCartAndPlaceOrderAsync(
+            customerId,
+            CloneAddress(customerAddress),
+            DateTime.UtcNow.AddDays(-2).AddHours(5),
+            new List<(string, int, string)> 
+            {
+                ("Ultimate Secure VPN", 5, OrderStatus.Delivered)
+            }
+        );
+        
+        await SeedCartAndPlaceOrderAsync(
+            customerId,
+            CloneAddress(customerAddress),
+            DateTime.UtcNow.AddHours(-1),
+            new List<(string, int, string)> 
+            {
+                ("Windows Workstation 12 Pro", 1, OrderStatus.Delivered),
+                ("DevTools Suite 2024", 1, OrderStatus.Delivered),
+                ("Ultimate Secure VPN", 1, OrderStatus.Delivered)
+            }
+        );
     }
 
     private async Task SeedGuidesAsync()
@@ -456,11 +616,8 @@ public class DbInitializer(
 
     private async Task SeedReviewsAsync()
     {
-        var adminUser = await userManager.FindByEmailAsync("admin@webshop.nl");
-        var customerUser = await userManager.FindByEmailAsync("customer@webshop.nl");
-        
-        var adminId = adminUser!.Id;
-        var customerId = customerUser!.Id;
+        var adminId = AdminUserId;
+        var customerId = CustomerUserId;
         
         var allProducts = await productRepository.GetAllAsync();
         var allGuides = await guideRepository.GetAllAsync();

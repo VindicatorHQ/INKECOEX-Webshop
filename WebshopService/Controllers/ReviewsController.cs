@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebshopService.DTOs;
 using WebshopService.DTOs.Requests;
 using WebshopService.DTOs.Responses;
 using WebshopService.Models;
@@ -46,7 +47,7 @@ public class ReviewController(IReviewRepository reviewRepository) : ControllerBa
         
         if (request.ProductId.HasValue == request.GuideId.HasValue)
         {
-            return BadRequest(new Error("Een review moet aan één ProductId OF één GuideId gekoppeld zijn, niet beide of geen.", "RVC400"));
+            return BadRequest(new Error("Een review moet aan één ProductId OF één GuideId gekoppeld zijn, niet beide of geen.", "IWS400"));
         }
 
         var review = new Review
@@ -95,12 +96,12 @@ public class ReviewController(IReviewRepository reviewRepository) : ControllerBa
         var review = await reviewRepository.GetByIdAsync(id);
         if (review == null)
         {
-            return NotFound(new Error($"Review met ID {id} niet gevonden.", "RVC404"));
+            return NotFound(new Error($"Review met ID {id} niet gevonden.", "IWS404"));
         }
 
         if (review.UserId != userId && !isAdmin)
         {
-            return Forbid("U heeft geen rechten om deze review aan te passen.", "RVC403");
+            return Forbid("U heeft geen rechten om deze review aan te passen.", "IWS403");
         }
 
         review.Comment = request.Comment;
@@ -127,12 +128,12 @@ public class ReviewController(IReviewRepository reviewRepository) : ControllerBa
         var review = await reviewRepository.GetByIdAsync(id);
         if (review == null)
         {
-            return NotFound(new Error($"Review met ID {id} niet gevonden.", "RVC404"));
+            return NotFound(new Error($"Review met ID {id} niet gevonden.", "IWS404"));
         }
 
         if (review.UserId != userId && !isAdmin)
         {
-            return Forbid("U heeft geen rechten om deze review te verwijderen.", "RVC403");
+            return Forbid("U heeft geen rechten om deze review te verwijderen.", "IWS403");
         }
 
         await reviewRepository.DeleteAsync(id);

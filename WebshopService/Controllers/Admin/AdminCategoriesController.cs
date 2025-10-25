@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebshopService.DTOs;
 using WebshopService.DTOs.Requests;
 using WebshopService.DTOs.Responses;
 using WebshopService.Exceptions;

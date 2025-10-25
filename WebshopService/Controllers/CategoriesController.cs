@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WebshopService.DTOs;
 using WebshopService.DTOs.Responses;
 using WebshopService.Exceptions;
 using WebshopService.Models;

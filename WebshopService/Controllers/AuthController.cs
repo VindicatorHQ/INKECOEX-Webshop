@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebshopService.Constants;
 using WebshopService.Data;
+using WebshopService.DTOs;
 using WebshopService.DTOs.Requests;
 using WebshopService.DTOs.Responses;
 
