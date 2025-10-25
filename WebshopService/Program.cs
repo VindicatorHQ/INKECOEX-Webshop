@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Polly;
 using WebshopService.Data;
-using WebshopService.Repositories;
 using WebshopService.Repositories.Implementation;
 using WebshopService.Repositories.Interface;
 
@@ -96,7 +95,7 @@ await policy.ExecuteAsync(async () =>
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync(); 
 
-        var initializer = new DbInitializer(userManager, roleManager, productRepository, categoryRepository, guideRepository);
+        var initializer = new DbInitializer(userManager, roleManager, productRepository, categoryRepository, guideRepository, reviewRepository);
         
         await initializer.InitializeAsync();
     }

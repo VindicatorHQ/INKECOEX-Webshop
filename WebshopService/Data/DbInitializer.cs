@@ -10,7 +10,8 @@ public class DbInitializer(
     RoleManager<IdentityRole> roleManager,
     IProductRepository productRepository,
     ICategoryRepository categoryRepository,
-    IGuideRepository guideRepository)
+    IGuideRepository guideRepository,
+    IReviewRepository reviewRepository)
 {
 
     public async Task InitializeAsync()
@@ -24,6 +25,9 @@ public class DbInitializer(
         await SeedProductsAsync();
         
         await SeedGuidesAsync();
+
+        // Nieuwe stap: Reviews toevoegen
+        await SeedReviewsAsync();
     }
 
     private async Task EnsureRolesExistAsync()
@@ -292,7 +296,7 @@ public class DbInitializer(
             },
             new Product
             {
-                Name = "Fantasy RPG: The Lost Realm",
+                Name = "Fantasy RPG: The Lost Realm", // Product dat GEEN reviews krijgt
                 Description = "Collector's Edition van een epische fantasy RPG.",
                 Price = 49.99m, StockQuantity = 35,
                 ProductCategories = new List<ProductCategory> { new ProductCategory { CategoryId = gameCategory } }
@@ -396,7 +400,7 @@ public class DbInitializer(
             "
         });
         
-        var guide4Title = "Migratie van Windows 11 naar Arch Linux: De Ultieme Uitdaging";
+        var guide4Title = "Migratie van Windows 11 naar Arch Linux: De Ultieme Uitdaging"; // Gids die GEEN reviews krijgt
         guides.Add(new Guide
         {
             Title = guide4Title,
@@ -447,6 +451,85 @@ public class DbInitializer(
         foreach (var guide in guides)
         {
             await guideRepository.AddAsync(guide);
+        }
+    }
+
+    private async Task SeedReviewsAsync()
+    {
+        var adminUser = await userManager.FindByEmailAsync("admin@webshop.nl");
+        var customerUser = await userManager.FindByEmailAsync("customer@webshop.nl");
+        
+        var adminId = adminUser!.Id;
+        var customerId = customerUser!.Id;
+        
+        var allProducts = await productRepository.GetAllAsync();
+        var allGuides = await guideRepository.GetAllAsync();
+        
+        var productsToReview = allProducts.OrderBy(p => p.Id).Take(allProducts.Count() - 1).ToList();
+        var guidesToReview = allGuides.OrderBy(g => g.Id).Take(allGuides.Count() - 1).ToList();
+        
+        var reviewsData = new List<(int Rating, string Comment, string ReviewerName, string? UserId)>
+        {
+            (5, "Absoluut fantastisch. De stabiliteit is ongeëvenaard voor dit prijsniveau. Een echte aanrader voor professionals.", "", adminId),
+            (4, "Goed product, maar de documentatie kan beter. De performance is echter top.", "Admin Analyst", adminId),
+            
+            (1, "Vreselijke aankoop. Het werkt niet met mijn oudere hardware en de support reageert traag.", "", customerId),
+            (5, "Super tevreden! Precies wat ik nodig had voor mijn thuisproject. Eenvoudig te installeren.", "Blije Klant", customerId),
+            (3, "Degelijk, niet meer en niet minder. Het doet wat het moet doen, maar mist wat premium functies.", "", customerId),
+            
+            (2, "Te duur voor wat je krijgt. Er zijn gratis alternatieven die beter presteren.", "Anoniem Gebruiker", null),
+            (5, "Geweldige software! 5 sterren!", "Piet P.", null),
+            (4, "Voldoet aan de verwachtingen. Snel en veilig.", "Software Fan", null),
+        };
+        
+        int reviewIndex = 0;
+        
+        foreach (var product in productsToReview)
+        {
+            int numReviews = (reviewIndex % 5) + 1; 
+            
+            for (int i = 0; i < numReviews; i++)
+            {
+                var data = reviewsData[(reviewIndex + i) % reviewsData.Count];
+                
+                var review = new Review
+                {
+                    ProductId = product.Id,
+                    Rating = data.Rating,
+                    Comment = data.Comment,
+                    ReviewerName = data.ReviewerName,
+                    UserId = data.UserId,
+                    CreatedAt = DateTime.UtcNow.AddHours(-(reviewIndex * 5 + i)), 
+                };
+                
+                await reviewRepository.AddAsync(review);
+            }
+            reviewIndex++;
+        }
+        
+        reviewIndex = 0;
+
+        foreach (var guide in guidesToReview)
+        {
+            int numReviews = (reviewIndex % 4) + 1;
+            
+            for (int i = 0; i < numReviews; i++)
+            {
+                var data = reviewsData[(reviewIndex + i * 2) % reviewsData.Count]; 
+                
+                var review = new Review
+                {
+                    GuideId = guide.Id,
+                    Rating = data.Rating,
+                    Comment = data.Comment,
+                    ReviewerName = data.ReviewerName,
+                    UserId = data.UserId,
+                    CreatedAt = DateTime.UtcNow.AddMinutes(-(reviewIndex * 30 + i * 10)),
+                };
+                
+                await reviewRepository.AddAsync(review);
+            }
+            reviewIndex++;
         }
     }
 }
