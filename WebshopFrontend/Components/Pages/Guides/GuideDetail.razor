@@ -1,0 +1,46 @@
+@page "/guides/{slug}"
+@using WebshopFrontend.Components.Review
+@inject NavigationManager NavigationManager
+
+<PageTitle>@Guide?.Title ?? "Gids"</PageTitle>
+
+<div class="container py-4">
+    @if (isLoading)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Gids wordt geladen...</p>
+        </div>
+    }
+    else if (Guide != null)
+    {
+        <div class="p-5 bg-light rounded-3 shadow-sm">
+            <h1 class="display-4 fw-bold mb-3">@Guide.Title</h1>
+            <p class="text-muted border-bottom pb-3 mb-4">
+                Laatst bijgewerkt: @Guide.UpdatedAt.ToShortDateString()
+            </p>
+            
+            <div class="guide-content">
+                @((MarkupString)Guide.Content)
+            </div>
+            
+            <a href="/guides" class="btn btn-outline-secondary mt-5">
+                &larr; Terug naar Overzicht
+            </a>
+            
+            <hr class="my-5" />
+        
+            <div class="row">
+                <div class="col-12">
+                    <ReviewSection ItemId="@Guide.Id" ItemType="product" />
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center mt-5">
+            De gevraagde gids is niet gevonden.
+        </div>
+    }
+</div>

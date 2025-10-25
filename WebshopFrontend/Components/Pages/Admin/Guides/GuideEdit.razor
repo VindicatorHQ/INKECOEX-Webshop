@@ -1,0 +1,31 @@
+@page "/admin/guides/edit/{id:int}"
+@using Microsoft.AspNetCore.Authorization
+@using WebshopFrontend.Components.Admin
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Gids Bewerken: @GuideModel.Title</PageTitle>
+
+<div class="container py-4">
+    <h1 class="mb-4">Gids Bewerken</h1>
+
+    @if (isLoading)
+    {
+        <p>Gidsgegevens worden geladen...</p>
+    }
+    else if (GuideModel.Id.HasValue)
+    {
+        <div class="card p-4 shadow-sm">
+            <GuideForm 
+                GuideModel="GuideModel" 
+                OnValidSubmit="HandleUpdate" 
+                ButtonText="Wijzigingen Opslaan"
+                IsSaving="isSaving"
+                ErrorMessage="@errorMessage" />
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">Gids niet gevonden of kon niet geladen worden.</div>
+    }
+</div>

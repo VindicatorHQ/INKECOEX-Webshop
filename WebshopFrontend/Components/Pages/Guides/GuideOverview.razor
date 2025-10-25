@@ -1,0 +1,44 @@
+@page "/guides"
+@using WebshopFrontend.DTOs.Responses
+
+<PageTitle>Software Gidsen & Handleidingen</PageTitle>
+
+<div class="container py-4">
+    <h1 class="display-4 mb-4">Software Gidsen & Handleidingen</h1>
+    <p class="lead text-muted mb-5">
+        Vind stapsgewijze handleidingen, migratietips en diepgaande analyses over onze softwareproducten.
+    </p>
+
+    @if (isLoading)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Gidsen worden geladen...</p>
+        </div>
+    }
+    else if (guides.Any())
+    {
+        <div class="row g-4">
+            @foreach (var guide in guides)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title text-primary-emphasis">@guide.Title</h5>
+                            <p class="card-text text-muted small mt-2">
+                                Gepubliceerd op: @guide.CreatedAt.ToShortDateString()
+                            </p>
+                            <a href="/guides/@guide.Slug" class="btn btn-outline-primary btn-sm mt-auto align-self-start">
+                                Lees Gids &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Er zijn momenteel geen publieke gidsen beschikbaar.</div>
+    }
+</div>

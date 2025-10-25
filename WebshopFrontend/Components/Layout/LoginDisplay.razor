@@ -1,0 +1,39 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<button class="btn btn-sm btn-outline-secondary" @onclick="ToggleTheme">
+    @if (themeService.CurrentTheme == "light")
+    {
+        <i class="bi bi-moon-fill"></i> <span class="text-dark">Dark Mode</span>
+    }
+    else
+    {
+        <i class="bi bi-sun-fill"></i> <span class="text-light">Light Mode</span>
+    }
+</button>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="shoppingcart">
+                <span class="oi oi-cart" aria-hidden="true"></span> Winkelmandje
+                
+                @if (cartService.GetTotalItemCount() > 0)
+                {
+                    <span class="badge bg-danger ms-1">@cartService.GetTotalItemCount()</span>
+                }
+            </NavLink>
+        </div>
+        
+        <a href="/account/profile" class="nav-link"><strong>@context.User.Identity?.Name</strong></a>
+
+        <button class="nav-link btn btn-link" @onclick="Logout">Uitloggen</button>
+    </Authorized>
+    
+    <NotAuthorized>
+        <span class="me-2"></span>
+        <button class="btn btn-primary me-2" @onclick="NavigateToLoginPage">Inloggen</button>
+        <button class="btn btn-danger" @onclick="NavigateToRegisterPage">Registreren</button>
+    </NotAuthorized>
+</AuthorizeView>

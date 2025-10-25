@@ -1,0 +1,45 @@
+@page "/orders"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<PageTitle>Mijn Bestellingen</PageTitle>
+
+<h1>Mijn Bestellingen</h1>
+<hr />
+
+@if (orders == null)
+{
+    <p><em>Bestelgeschiedenis laden...</em></p>
+}
+else if (!orders.Any())
+{
+    <div class="alert alert-info">Je hebt nog geen bestellingen geplaatst.</div>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Datum</th>
+            <th>Status</th>
+            <th class="text-end">Totaal</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var order in orders)
+        {
+            <tr>
+                <td>@order.OrderId</td>
+                <td>@order.OrderDate.ToShortDateString()</td>
+                <td><span class="badge bg-primary">@order.Status</span></td>
+                <td class="text-end fw-bold">€@order.TotalAmount</td>
+                <td>
+                    <a href="/orders/@order.OrderId" class="btn btn-sm btn-outline-info">Details</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,90 @@
+@using Microsoft.AspNetCore.Authorization
+@page "/account/profile"
+@attribute [Authorize]
+
+<PageTitle>Mijn Profiel</PageTitle>
+
+<h3>Mijn Profiel</h3>
+<hr />
+
+@if (profile == null)
+{
+    <p><em>Profiel laden...</em></p>
+}
+else
+{
+    <EditForm Model="@profile" OnValidSubmit="HandleUpdate">
+        <DataAnnotationsValidator />
+        
+        @if (updateSuccess)
+        {
+            <div class="alert alert-success mt-3">Profiel succesvol bijgewerkt!</div>
+        }
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger mt-3">@errorMessage</div>
+        }
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card p-3 mb-4">
+                    <h4>Persoonlijke Gegevens</h4>
+                    <hr/>
+                    <div class="mb-3">
+                        <label class="form-label">E-mail (niet wijzigbaar)</label>
+                        <InputText class="form-control" @bind-Value="profile.Email" disabled />
+                    </div>
+                    <div class="mb-3">
+                        <label for="firstname" class="form-label">Voornaam</label>
+                        <InputText id="firstname" class="form-control" @bind-Value="profile.FirstName" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastname" class="form-label">Achternaam</label>
+                        <InputText id="lastname" class="form-control" @bind-Value="profile.LastName" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card p-3 mb-4">
+                    <h4>Verzendadres (Standaard voor Checkout)</h4>
+                    <hr/>
+                    
+                    <div class="mb-3">
+                        <label for="fullname" class="form-label">Volledige Naam Ontvanger</label>
+                        <InputText id="fullname" class="form-control" @bind-Value="profile.FullName" />
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-8 mb-3">
+                            <label for="street" class="form-label">Straat</label>
+                            <InputText id="street" class="form-control" @bind-Value="profile.Street" />
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label for="housenumber" class="form-label">Nr.</label>
+                            <InputText id="housenumber" class="form-control" @bind-Value="profile.HouseNumber" />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="zipcode" class="form-label">Postcode</label>
+                        <InputText id="zipcode" class="form-control" @bind-Value="profile.ZipCode" />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="city" class="form-label">Plaats</label>
+                        <InputText id="city" class="form-control" @bind-Value="profile.City" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="country" class="form-label">Land</label>
+                        <InputText id="country" class="form-control" @bind-Value="profile.Country" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg mt-3">
+            <i class="bi bi-save"></i> Profiel Opslaan
+        </button>
+    </EditForm>
+}

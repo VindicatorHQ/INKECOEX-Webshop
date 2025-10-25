@@ -1,0 +1,55 @@
+@page "/admin/orders"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Admin Order Beheer</PageTitle>
+
+<AuthorizeView Roles="Admin" Context="authContext">
+    <Authorized>
+        <h1>Order Beheer</h1>
+        <p class="text-muted">Overzicht van alle geplaatste bestellingen.</p>
+        <hr />
+
+        @if (orders == null)
+        {
+            <p><em>Orders laden...</em></p>
+        }
+        else if (!orders.Any())
+        {
+            <div class="alert alert-info">Er zijn nog geen orders.</div>
+        }
+        else
+        {
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Datum</th>
+                    <th class="text-end">Totaal</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var order in orders)
+                {
+                    <tr>
+                        <td>@order.OrderId</td>
+                        <td>@order.OrderDate.ToShortDateString()</td>
+                        <td class="text-end fw-bold">€@order.TotalAmount</td>
+                        <td><span class="badge bg-primary">@order.Status</span></td>
+                        <td>
+                            <a href="/admin/orders/@order.OrderId" class="btn btn-sm btn-info">Bekijken</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </Authorized>
+    
+    <NotAuthorized>
+        <div class="alert alert-warning">U bent ingelogd, maar hebt niet de benodigde "Admin" rol voor deze pagina.</div>
+    </NotAuthorized>
+</AuthorizeView>

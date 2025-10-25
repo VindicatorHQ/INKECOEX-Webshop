@@ -1,0 +1,90 @@
+@page "/checkout"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+
+<PageTitle>Afrekenen</PageTitle>
+
+<h1>Afrekenen 💳</h1>
+<hr />
+
+@if (cartService.CurrentCart.Items.Count == 0)
+{
+    <div class="alert alert-warning">
+        Je winkelmandje is leeg. Ga terug naar de <a href="/shoppingcart">winkelwagen</a>.
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Besteloverzicht</h3>
+            <ul class="list-group mb-4">
+                @foreach (var item in cartService.CurrentCart.Items)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div>@item.ProductName x @item.Quantity</div>
+                        <span>€@item.Subtotal</span>
+                    </li>
+                }
+                <li class="list-group-item d-flex justify-content-between list-group-item-dark fw-bold">
+                    <span>Totaal:</span>
+                    <span>€@cartService.CurrentCart.TotalPrice</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+                        <h3>Verzendadres</h3>
+            <EditForm Model="@checkoutRequest" OnValidSubmit="HandleCheckout">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label>Naam Ontvanger</label>
+                    <InputText class="form-control" @bind-Value="checkoutRequest.FullName" />
+                </div>
+                <div class="row">
+                    <div class="col-md-9 mb-3">
+                        <label>Straat</label>
+                        <InputText class="form-control" @bind-Value="checkoutRequest.Street" />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Nr.</label>
+                        <InputText class="form-control" @bind-Value="checkoutRequest.HouseNumber" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5 mb-3">
+                        <label>Postcode</label>
+                        <InputText class="form-control" @bind-Value="checkoutRequest.ZipCode" />
+                    </div>
+                    <div class="col-md-7 mb-3">
+                        <label>Plaats</label>
+                        <InputText class="form-control" @bind-Value="checkoutRequest.City" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Land</label>
+                    <InputText class="form-control" @bind-Value="checkoutRequest.Country" />
+                </div>
+
+                @if (errorMessage != null)
+                {
+                    <div class="alert alert-danger">@errorMessage</div>
+                }
+                
+                <button type="submit" class="btn btn-success btn-lg w-100 mt-3" disabled="@isProcessing">
+                    @if (isProcessing)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <p>Bestelling plaatsen...</p>
+                    }
+                    else
+                    {
+                        <p>Bestelling Plaatsen en Betalen</p>
+                    }
+                </button>
+            </EditForm>
+        </div>
+    </div>
+}

@@ -1,0 +1,53 @@
+using Microsoft.AspNetCore.Components;
+using WebshopFrontend.Agents.Interface;
+using WebshopFrontend.DTOs.Requests;
+using WebshopFrontend.DTOs.Responses;
+using WebshopFrontend.Services;
+
+namespace WebshopFrontend.Components.Pages.Auth;
+
+public partial class Checkout(IOrderAgent orderAgent, ShoppingCartService cartService, IUserAgent userAgent) : ComponentBase
+{
+    private CheckoutRequest checkoutRequest = new();
+    private bool isProcessing;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var profile = await userAgent.GetUserProfileAsync();
+
+        if (profile != null)
+        {
+            checkoutRequest = new CheckoutRequest
+            {
+                FullName = $"{profile.FirstName} {profile.LastName}",
+                Street = profile.Street,
+                HouseNumber = profile.HouseNumber,
+                ZipCode = profile.ZipCode,
+                City = profile.City,
+                Country = profile.Country
+            };
+        }
+    }
+
+    private async Task HandleCheckout()
+    {
+        isProcessing = true;
+        errorMessage = null;
+
+        var orderId = await orderAgent.PlaceOrderAsync(checkoutRequest);
+
+        if (orderId.HasValue)
+        {
+            cartService.SetCart(new ShoppingCartResponse());
+            
+            NavigationManager.NavigateTo($"/orders/{orderId.Value}");
+        }
+        else
+        {
+            errorMessage = "Kon de bestelling niet plaatsen. Controleer je adres of de voorraad.";
+            
+            isProcessing = false;
+        }
+    }
+}

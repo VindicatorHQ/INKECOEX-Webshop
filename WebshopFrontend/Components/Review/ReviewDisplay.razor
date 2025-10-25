@@ -1,0 +1,34 @@
+<div class="review-display">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+            <span class="fw-bold me-3">
+                <i class="bi bi-person-circle me-1"></i> @Review.ReviewerName
+            </span>
+            <span class="text-muted small">
+                Gepubliceerd op @Review.CreatedAt.ToLocalTime().ToString("dd MMMM yyyy")
+            </span>
+        </div>
+        
+        <div class="rating-stars d-flex align-items-center">
+            @for (int i = 1; i <= 5; i++)
+            {
+                <i class="bi bi-star-fill me-1 @(i <= Review.Rating ? "text-warning" : "text-light")"></i>
+            }
+            <span class="ms-2 fw-bold">(@Review.Rating/5)</span>
+        </div>
+    </div>
+    
+    <p class="mb-3">@Review.Comment</p>
+
+    @if (CanModify)
+    {
+        <div class="review-actions d-flex gap-2">
+            <button class="btn btn-sm btn-outline-warning" @onclick="() => OnEdit.InvokeAsync(Review.Id)">
+                <i class="bi bi-pencil-square"></i> Bewerken
+            </button>
+            <button class="btn btn-sm btn-outline-danger" @onclick="() => OnDelete.InvokeAsync(Review.Id)">
+                <i class="bi bi-trash"></i> Verwijderen
+            </button>
+        </div>
+    }
+</div>

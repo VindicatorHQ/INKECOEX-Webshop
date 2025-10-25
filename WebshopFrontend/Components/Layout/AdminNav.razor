@@ -1,0 +1,59 @@
+@using Microsoft.AspNetCore.Components.Authorization
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <div class="card shadow-sm mb-4 border-0 admin-nav-container">
+            <div class="card-body p-2">
+                <ul class="nav nav-pills nav-fill">
+                    <li class="nav-item">
+                        <NavLink class="nav-link admin-nav-link d-flex align-items-center justify-content-center gap-2" href="admin/products">
+                            <i class="bi bi-box-seam"></i> Producten
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link admin-nav-link d-flex align-items-center justify-content-center gap-2" href="admin/orders">
+                            <i class="bi bi-truck"></i> Orders
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link admin-nav-link d-flex align-items-center justify-content-center gap-2" href="admin/categories">
+                            <i class="bi bi-tag"></i> Categorieën
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link admin-nav-link d-flex align-items-center justify-content-center gap-2" href="admin/guides">
+                            <i class="bi bi-book"></i> Gidsen
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <style>
+            .admin-nav-link {
+                color: var(--bs-secondary);
+                transition: all 0.2s ease-in-out;
+                border: 2px solid transparent;
+                font-weight: 500;
+                border-radius: 0.5rem;
+            }
+
+            .admin-nav-link:hover {
+                background-color: var(--bs-light);
+                color: var(--bs-primary);
+                border-color: var(--bs-light);
+            }
+
+            .admin-nav-link.active {
+                border: 2px solid var(--bs-primary); 
+                font-weight: bold;
+                color: var(--bs-white) !important; 
+                background-color: var(--bs-primary) !important;
+            }
+
+            .admin-nav-link.active i {
+                color: var(--bs-white) !important;
+            }
+        </style>
+    </Authorized>
+</AuthorizeView>

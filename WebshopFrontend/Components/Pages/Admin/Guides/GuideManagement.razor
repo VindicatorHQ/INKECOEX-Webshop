@@ -1,0 +1,54 @@
+@page "/admin/guides"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
+
+<PageTitle>Admin Gidsen Beheer</PageTitle>
+
+<h1>Gidsen Beheer</h1>
+
+<div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-success" @onclick="NavigateToCreate">Nieuwe Gids Aanmaken</button>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Gidsen worden geladen...</p>
+    </div>
+}
+else if (guides.Any())
+{
+    <table class="table table-striped table-hover shadow-sm">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Titel</th>
+            <th>Slug</th>
+            <th>Aangemaakt op</th>
+            <th style="width: 180px;">Acties</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var guide in guides)
+        {
+            <tr>
+                <td>@guide.Id</td>
+                <td>@guide.Title</td>
+                <td>@guide.Slug</td>
+                <td>@guide.CreatedAt.ToShortDateString()</td>
+                <td>
+                    <button class="btn btn-sm btn-info me-2" @onclick="() => NavigateToEdit(guide.Id)">Bewerken</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteGuide(guide.Id)">Verwijder</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">Er zijn nog geen gidsen aangemaakt.</div>
+}
