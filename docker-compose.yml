@@ -10,6 +10,40 @@
       - POSTGRES_USER=${DATABASE_USER:-postgres}
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-S3cr_t}
       - POSTGRES_DB=${DATABASE_NAME:-INKECOEX_Webshop}
+    networks:
+      - webshopnet
+  
+  webshopservice:
+    container_name: "webshopservice"
+    build:
+      context: ./WebshopService
+      dockerfile: Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - INKECOEX_Webshop=Host=postgres;Port=5432;Database=${DATABASE_NAME:-INKECOEX_Webshop};Username=${DATABASE_USER:-postgres};Password=${DATABASE_PASSWORD:-S3cr_t}
+    depends_on:
+      - postgres
+    networks:
+      - webshopnet
+  
+  webshopfrontend:
+    container_name: "webshopfrontend"
+    build:
+      context: ./WebshopFrontend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - AgentUrl=http://webshopservice:8080
+    depends_on:
+      - webshopservice
+    networks:
+      - webshopnet
 
 volumes:
   postgres-data:
+    
+networks:
+  webshopnet:
+    driver: bridge
