@@ -1,99 +1,62 @@
 # INKECOEX-Webshop
-Deze gids bevat de stap-voor-stap instructies voor het lokaal instellen en draaien van de Webshop Service-applicatie. We gaan ervan uit dat je een schone machine hebt zonder de benodigde software geïnstalleerd.
+This guide contains the step-by-step instructions for setting up and running the Webshop application locally. We assume you have a clean machine without the necessary software installed.
 
-## 1\. Vereisten
+## 1. Prerequisites
 
-Om dit project te kunnen draaien, heb je twee belangrijke componenten nodig:
+To run this project, you need two main components:
 
-1.  [**.NET 9 SDK**](https://dotnet.microsoft.com/download/dotnet/9.0)**:** De software-ontwikkelingskit van Microsoft die nodig is om de C\# code te bouwen en uit te voeren.
+1.  [**.NET 9 SDK**](https://dotnet.microsoft.com/download/dotnet/9.0)**:** Microsoft's software development kit required to build and execute the C# code.
 
-2.  [**Docker Desktop**](https://www.docker.com/products/docker-desktop/)**:** We gebruiken Docker om de PostgreSQL-database te hosten in een container, wat zorgt voor een consistente en gemakkelijke database-omgeving.
+2.  [**Docker Desktop**](https://www.docker.com/products/docker-desktop/)**:** We use Docker to host the PostgreSQL database in a container, ensuring a consistent and easy database environment.
 
-## 2\. Installatie van de Vereisten
+## 2. Installation of Prerequisites
 
-Volg de stappen hieronder om de benodigde software te installeren:
+Follow the steps below to install the required software:
 
-### A. Installeer .NET 9 SDK
+### A. Install .NET 9 SDK
 
-1.  Ga naar de officiële [.NET 9 SDK downloadpagina](https://dotnet.microsoft.com/download/dotnet/9.0).
+1.  Go to the official [.NET 9 SDK download page](https://dotnet.microsoft.com/download/dotnet/9.0).
 
-2.  Download het installatieprogramma dat geschikt is voor jouw besturingssysteem (Windows, macOS, of Linux).
+2.  Download the installer suitable for your operating system (Windows, macOS, or Linux).
 
-3.  Voer het installatieprogramma uit en volg de instructies. De installatie is meestal snel en vereist geen speciale configuraties.
+3.  Run the installer and follow the instructions. The installation is usually quick and requires no special configurations.
 
-4.  **Verificatie:** Open je terminal (Command Prompt, PowerShell, of Bash) en typ:
+4.  **Verification:** Open your terminal (Command Prompt, PowerShell, or Bash) and type:
 
     ```
     dotnet --version
     ```
 
-    Als de installatie succesvol was, zie je nu een versie nummer dat begint met `9.` (bijv. `9.0.x`).
+    If the installation was successful, you will now see a version number starting with `9.` (e.g., `9.0.x`).
 
-### B. Installeer Docker Desktop
+### B. Install Docker Desktop
 
-1.  Ga naar de [Docker Desktop downloadpagina](https://www.docker.com/products/docker-desktop/).
+1.  Go to the [Docker Desktop download page](https://www.docker.com/products/docker-desktop/).
 
-2.  Download en installeer Docker Desktop voor jouw systeem.
+2.  Download and install Docker Desktop for your system.
 
-3.  Start Docker Desktop na de installatie. Het kan even duren voordat Docker volledig is opgestart. Zorg ervoor dat het Docker-icoon stabiel is (dit betekent dat de Docker Engine draait).
+3.  Start Docker Desktop after installation. It may take a moment for Docker to fully start. Ensure the Docker icon is stable (this means the Docker Engine is running).
 
-## 3\. Database Setup (Docker Compose)
+## 3. Local Startup (Recommended: Docker Compose)
 
-Het project maakt gebruik van een `docker-compose.yml` bestand om de PostgreSQL-database te definiëren. Dit is de snelste manier om de database lokaal te starten.
+The entire project (database, backend, and frontend) can be started with a single command using `docker compose`. This method will build all necessary images, apply database migrations, and start all services in the background.
 
-1.  **Navigeer naar de Project Root:** Open je terminal en navigeer naar de hoofdmap van dit project. Deze map is de `INKECOEX-Webshop/` directory, waar het bestand `docker-compose.yml` zich bevindt.
+1.  **Navigate to the Project Root:** Open your terminal and navigate to the root directory of this project. This is the `INKECOEX-Webshop/` directory, where the file `docker-compose.yml` is located.
 
     ```
-    cd /pad/naar/INKECOEX-Webshop/
+    cd /path/to/INKECOEX-Webshop/
     ```
 
-2.  **Start de Database Container:** Voer het volgende commando uit. Dit zal de Docker-container downloaden, opstarten en het netwerk aanmaken.
+2.  **Start the Entire Project:** Execute the following command. This will download the necessary containers, build the backend and frontend, and start all services (Database, WebshopService, WebshopFrontend).
 
     ```
     docker compose up -d
     ```
 
-    * De optie `-d` staat voor "detached" en zorgt ervoor dat de container op de achtergrond blijft draaien.
+    * The `-d` option stands for "detached" and ensures that the containers continue to run in the background.
+    * The Backend service (`WebshopService`) will be running at **`http://localhost:5176`**.
+    * The Frontend application (`WebshopFrontend`) will be available in your browser, usually at **`http://localhost:5000`** (or another available port).
 
-3.  **Verifieer de Database:** Je kunt nu in Docker Desktop zien dat een nieuwe container (bijvoorbeeld `webshopservice-db`) is aangemaakt en de status "Running" heeft.
+3.  **Verification:** You can now check in Docker Desktop that the containers (e.g., `webshopservice-db`, `webshopservice-webshopservice`, and `webshopservice-webshopfrontend`) have been created and are in the "Running" status. You can now open the webshop in your browser via the indicated URL (e.g., `http://localhost:5000`).
 
-## 4\. De Backend Service Draaien (`WebshopService`)
-
-Dit is de Web API (de backend) die de data levert. Deze moet eerst draaien voordat de frontend kan communiceren.
-
-1.  **Navigeer naar de Service Map:** Ga in je terminal naar de map van het backend-project (`WebshopService`).
-
-    ```
-    cd WebshopService
-    ```
-
-2.  **Voer de Applicatie uit:** Gebruik het `dotnet run` commando. Dit commando bouwt de applicatie, past alle Entity Framework Core Migraties toe op de zojuist gestarte database, zaait de testdata en start de service op, meestal op **`http://localhost:5176`**.
-
-    ```
-    dotnet run
-    ```
-
-    * **Laat deze terminal open staan en actief\!** De service moet blijven draaien.
-
-## 5\. De Frontend Applicatie Draaien (`WebshopFrontend`)
-
-Nu de backend draait, kunnen we de Blazor-frontend opstarten.
-
-1.  **Open een Tweede Terminal:** Dit is essentieel omdat de backend-terminal nog actief moet zijn.
-
-2.  **Navigeer naar de Frontend Map:** Ga in de nieuwe terminal naar de map van het frontend-project (`WebshopFrontend`).
-
-    ```
-    cd ..
-    cd WebshopFrontend
-    ```
-
-3.  **Voer de Applicatie uit:** Gebruik het `dotnet run` commando. Dit start de Blazor-applicatie op, meestal op **`http://localhost:5000`** (of een andere beschikbare poort).
-
-    ```
-    dotnet run
-    ```
-
-4.  **Verificatie:** De terminal zal berichten tonen over het opstarten van de frontend. Je kunt nu de webshop openen in je browser via de aangegeven URL (bijv. `http://localhost:5000`).
-
-**Gefeliciteerd\!** Je hebt zowel de backend (`WebshopService`) als de frontend (`WebshopFrontend`) nu succesvol lokaal draaiende
+**Congratulations!** You have successfully started the entire project locally using Docker Compose.
